@@ -7,11 +7,16 @@ In a simple effort to address the lack of appropriate performance evaluation for
 
 **Technologies Used**
 
-Backend – Java + Springboot
+Backend – Java + Springboot 
+
 FrontEnd – Materials UI / React 
+
 DB – PostGRESQL / MYSQL
+
 Cloud – AWS
+
 Monitoring – Grafana
+
 Repository - gitHub
 
 **Detailed Description and UseCases**
