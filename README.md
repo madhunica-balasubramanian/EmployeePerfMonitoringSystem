@@ -20,39 +20,35 @@ In our web application, we will be incorporating employee’s wellness indicator
 
 ****Roles and Department details considered ****
 
-1. U.S. Department of Health and Human Services (HHS) 
- 
-Role	                                    Description
-Policy Analyst	                 Researches and drafts health-related policies
-Grants Specialist	               Manages funding programs and monitors compliance
-Health Program Manager	         Oversees public health initiatives
-Data Analyst	                   Analyzes public health data to generate reports
-Administrative Assistant	        Supports scheduling, documentation, and coordination
-Public Affairs Officer	         Handles press releases and community engagement
+**Postal Workers (USPS)**
+ **Performance Metrics**
+Mail/package delivery on-time rate
+Customer complaints or praise
+Delivery accuracy
+ **Wellness Metrics**
+Daily physical activity (steps/miles walked)
+Injury reports or risk level
+Weather exposure logs
 
 
-2. US Department of HomeLand Security
+**Healthcare (e.g., VA hospitals, CDC staff)**
+ **Performance Metrics**
+Number of patients attended
+Patient satisfaction score
+Timeliness of reporting and response
+ **Wellness Metrics**
+Burnout risk (based on hours worked, breaks taken)
+Self-assessment surveys
+Sleep & stress tracking (manual input or wearables integration)
 
-Role	                            Description
-Border                        Operations Officer	Oversees security at borders and ports
-Cybersecurity Analyst	        Monitors and mitigates cyber threats
-Emergency Management Planner	Prepares response plans for natural or man-made disasters
-Administrative Coordinator	  Manages office logistics and staff scheduling
-Training Officer	            Conducts safety and security training programs
-Cyber Threat Analyst	        Identifies and mitigates cyber threats
-Compliance Analyst	          Ensures regulatory and legal adherence
+**Transportation (e.g., Federal Aviation Administration, DOT)**
+ **Performance Metrics**
+Project milestone completions
+Timely maintenance checks
+Incident-free days
+ **Wellness Metrics**
+Sleep tracking for drivers/operators
+Fatigue risk index
+Shift durations
 
 
-
-**Modules in the Employee Performance monitoring system**
-
-i.	Employee Profile management 
-This should consist of the following fields.
-a.	Department, role, grade level, supervisor or manager name
-b.	Years of Experience / Tenure 
-c.	Training or Certifications passed
-d.	Age, Location, Employee ID
-e.	Responsibilities, Performance Score, Wellness Score
-f.	Appraisal Dates
-
-<<TBD>>
