@@ -7,7 +7,7 @@ In a simple effort to address the lack of appropriate performance evaluation for
 
 **Technologies Used**
 
-Backend – Java + Springboot 
+Backend – Python fastAPI framework 
 
 FrontEnd – Materials UI / React 
 
