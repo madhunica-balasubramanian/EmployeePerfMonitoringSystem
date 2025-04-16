@@ -1,9 +1,3 @@
--- Create database
-CREATE DATABASE wellness_db;
-
--- Connect to the database
-\c wellness_db;
-
 -- Create enum types
 CREATE TYPE department_type AS ENUM ('USPS', 'HEALTHCARE', 'TRANSPORTATION');
 CREATE TYPE role_type AS ENUM ('POSTAL_WORKER', 'HEALTHCARE_STAFF', 'TRANSPORTATION_STAFF', 'SUPERVISOR', 'ADMIN');
