@@ -5,6 +5,10 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import uvicorn
 from app.routes import users, metrics, departments, dashboards
+from app.models.base import Base
+from database import engine
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Employee Wellness & Performance Tracker",

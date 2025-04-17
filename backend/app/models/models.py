@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, Boolean, Date, Text, Enum
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Boolean, Date, Text, Enum, DateTime
 from sqlalchemy.orm import relationship
 import enum
-from .base import BaseModel
+#from .base import BaseModel
+from app.models.base import Base
 
 class DepartmentType(enum.Enum):
     USPS = "USPS"
@@ -9,15 +10,14 @@ class DepartmentType(enum.Enum):
     TRANSPORTATION = "TRANSPORTATION"
 
 class RoleType(enum.Enum):
-    POSTAL_WORKER = "POSTAL_WORKER"
-    HEALTHCARE_STAFF = "HEALTHCARE_STAFF"
-    TRANSPORTATION_STAFF = "TRANSPORTATION_STAFF"
+    EMPLOYEE = "EMPLOYEE"
+    #HEALTHCARE_STAFF = "HEALTHCARE_STAFF"
+    #TRANSPORTATION_STAFF = "TRANSPORTATION_STAFF"
     SUPERVISOR = "SUPERVISOR"
     ADMIN = "ADMIN"
 
-class User(BaseModel):
+class User(Base):
     __tablename__ = "users"
-    
     username = Column(String(50), unique=True, index=True, nullable=False)
     email = Column(String(100), unique=True, index=True, nullable=False)
     hashed_password = Column(String(100), nullable=False)
@@ -56,40 +56,58 @@ class User(BaseModel):
     #user.dashboards[0].layout ➝ JSON layout of the first dashboard of the user
     
     # Need to be updated with actual relationships and tables.
-class Department(BaseModel):
+class Department(Base):
     __tablename__ = "departments"
-    #TBD
+    
+    id = Column(Integer, primary_key=True, index=True)  # Add a primary key
+    name = Column(String(100), nullable=False)  # Example column for department name
+    type = Column(Enum(DepartmentType), nullable=False)  # Example column for department type
     
     # Relationships
     users = relationship("User", back_populates="department")
-    #metrics_definitions = relationship("MetricDefinition", back_populates="department")
-
-class MetricDefinition(BaseModel):
-    __tablename__ = "metric_definitions"
-    #TBD
+    metrics_definitions = relationship("MetricDefinition", back_populates="department")
     
+class MetricDefinition(Base):
+    __tablename__ = "metric_definitions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False)
+    description = Column(Text)
+    metric_type = Column(String(20), nullable=False)  # could also use Enum('performance', 'wellness')
+    department_id = Column(Integer, ForeignKey("departments.id"))
+    unit = Column(String(20))  # e.g., %, count, hours, index
+    is_numeric = Column(Boolean, default=True)
+
     # Relationships
     department = relationship("Department", back_populates="metrics_definitions")
+    records = relationship("MetricRecord", back_populates="metric")
 
-class WellnessMetric(BaseModel):
-    __tablename__ = "wellness_metrics"
+class MetricTypeEnum(str, enum.Enum):
+    performance = "performance"
+    wellness = "wellness"
+
+class Metrics(Base):
+    __tablename__ = "metrics"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    metric_id = Column(Integer, ForeignKey("metric_definitions.id"), nullable=False)
     
-    #TBD
-    
+    metric_type = Column(Enum(MetricTypeEnum), nullable=False)
+
+    value_numeric = Column(Float, nullable=True)
+    value_text = Column(Text, nullable=True)
+    value_json = Column(Text, nullable=True)  # for complex structures (optional)
+
+    recorded_at = Column(DateTime(timezone=True))#, server_default=func.now())
+    notes = Column(Text)
+
     # Relationships
-    user = relationship("User", back_populates="wellness_metrics")
-    #metric_definition = relationship("MetricDefinition")
+    user = relationship("User", back_populates="metrics")
+    metric_definition = relationship("MetricDefinition")
 
-class PerformanceMetric(BaseModel):
-    __tablename__ = "performance_metrics"
-    
-    #TBD
-    
-    # Relationships
-    user = relationship("User", back_populates="performance_metrics")
-    #metric_definition = relationship("MetricDefinition")
-
-class Dashboard(BaseModel):
+"""
+class Dashboard(Base):
     __tablename__ = "dashboards"
     
     name = Column(String(100), nullable=False)
@@ -99,3 +117,4 @@ class Dashboard(BaseModel):
     
     # Relationships
     user = relationship("User")
+    """
