@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, Column, Integer, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import func
-from config import DATABASE_URL
+from app.config import DATABASE_URL
 
 # Create SQLAlchemy engine
 engine = create_engine(DATABASE_URL)
@@ -10,7 +10,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Create declarative base
 Base = declarative_base()
-
+print("Base loaded")
 # Base model with common fields
 class BaseModel(Base):
     __abstract__ = True

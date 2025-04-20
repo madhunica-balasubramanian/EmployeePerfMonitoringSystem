@@ -1,35 +1,67 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, Boolean, Date, Text, Enum, DateTime
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, Boolean, Date, Text, DateTime
 from sqlalchemy.orm import relationship
-import enum
-#from .base import BaseModel
+from sqlalchemy.types import Enum as SQLEnum  # Correct enum for SQLAlchemy
+import enum  # Python enum
 from app.models.base import Base
 
-class DepartmentType(enum.Enum):
+class DepartmentType(str, enum.Enum):
     USPS = "USPS"
     HEALTHCARE = "HEALTHCARE"
     TRANSPORTATION = "TRANSPORTATION"
 
-class RoleType(enum.Enum):
+class RoleType(str, enum.Enum):
     EMPLOYEE = "EMPLOYEE"
-    #HEALTHCARE_STAFF = "HEALTHCARE_STAFF"
-    #TRANSPORTATION_STAFF = "TRANSPORTATION_STAFF"
     SUPERVISOR = "SUPERVISOR"
     ADMIN = "ADMIN"
+    
+class DepartmentRoleType(str, enum.Enum):
+    # Healthcare roles
+    HEALTHCARE_SUPERVISOR = "HEALTHCARE_SUPERVISOR"
+    HEALTHCARE_ADMIN = "HEALTHCARE_ADMIN"
+    HEALTHCARE_NURSE = "HEALTHCARE_NURSE"
+    
+    # USPS roles
+    USPS_SUPERVISOR = "USPS_SUPERVISOR"
+    USPS_MAIL_CARRIER = "USPS_MAIL_CARRIER"
+    USPS_OFFICE_ADMIN = "USPS_OFFICE_ADMIN"
+    
+    # Transportation roles can be added as needed
+    TRANSPORTATION_DRIVER = "TRANSPORTATION_DRIVER"
+    TRANSPORTATION_DISPATCHER = "TRANSPORTATION_DISPATCHER"
+    ADMIN2 = "ADMIN2"
+
+class MetricTypeEnum(str, enum.Enum):
+    PERFORMANCE = "performance"
+    WELLNESS = "wellness"
 
 class User(Base):
     __tablename__ = "users"
+    
+    # The actual database primary key (auto-incremented)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    
+    # User identification fields
     username = Column(String(50), unique=True, index=True, nullable=False)
     email = Column(String(100), unique=True, index=True, nullable=False)
     hashed_password = Column(String(100), nullable=False)
     first_name = Column(String(50))
     last_name = Column(String(50))
-    role = Column(Enum(RoleType), nullable=False)
-    department_id = Column(Integer, ForeignKey("departments.id"))
-    #the actual database primary key (auto-incremented)
-    id = Column(Integer, primary_key=True, index=True)
-    #your custom unique string (like "EMP001", "EMP002")
+    
+    # The employee ID is a unique identifier for each user (custom string like "EMP001")
     employee_id = Column(String(20), unique=True, nullable=False)
+    
+    # Role and department information
+    role = Column(SQLEnum(RoleType, name="role_type_enum"), nullable=False)
+    department_role = Column(SQLEnum(DepartmentRoleType, name="department_role_enum"), nullable=False)
+    department_id = Column(Integer, ForeignKey("departments.id"))
+    
     is_active = Column(Boolean, default=True)
+    
+    # Relationships
+    department = relationship("Department", back_populates="users")
+    metric_records = relationship("MetricRecord", back_populates="user")
+    #dashboards = relationship("Dashboard", back_populates="user")
+    
     """
     How users and departments are related:
     - Each user belongs to one department.
@@ -37,31 +69,27 @@ class User(Base):
     - The relationship is established through the foreign key department_id in the User model.
     - The relationship is bidirectional, meaning you can access the users of a department 
        from the department model and vice versa.
-    Example: dept = Department(name="Engineering", type=DepartmentType.TECH)
-            user = User(
-                    username="john",
-                    email="john@example.com",
-                    employee_id="EMP123",
-                    role=RoleType.EMPLOYEE,
-                    department=dept
-                )
-                user.department.name ➝ "Engineering" , dept.users ➝ list of all users in Engineering
-
-    """
- # Relationships between users and other database models.
-    department = relationship("Department", back_populates="users") #user.department.name
-    wellness_metrics = relationship("WellnessMetric", back_populates="user") #user.wellness_metrics
-    performance_metrics = relationship("PerformanceMetric", back_populates="user")#user.performance_metrics
-    dashboards = relationship("Dashboard", back_populates="user") #user.dashboards
-    #user.dashboards[0].layout ➝ JSON layout of the first dashboard of the user
     
-    # Need to be updated with actual relationships and tables.
+    Example: 
+        dept = Department(name="Engineering", type=DepartmentType.TECH)
+        user = User(
+                username="john",
+                email="john@example.com",
+                employee_id="EMP123",
+                role=RoleType.EMPLOYEE,
+                department=dept
+            )
+        user.department.name ➝ "Engineering"
+        dept.users ➝ list of all users in Engineering
+    """
+
 class Department(Base):
     __tablename__ = "departments"
     
-    id = Column(Integer, primary_key=True, index=True)  # Add a primary key
-    name = Column(String(100), nullable=False)  # Example column for department name
-    type = Column(Enum(DepartmentType), nullable=False)  # Example column for department type
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    name = Column(String(100), nullable=False)
+    type = Column(SQLEnum(DepartmentType, name="department_type_enum"), nullable=False)
+    description = Column(String(255), nullable=True)
     
     # Relationships
     users = relationship("User", back_populates="department")
@@ -71,50 +99,36 @@ class MetricDefinition(Base):
     __tablename__ = "metric_definitions"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(100), nullable=False)
-    description = Column(Text)
-    metric_type = Column(String(20), nullable=False)  # could also use Enum('performance', 'wellness')
+    metric_name = Column(String(100), nullable=False)
+    metric_description = Column(Text)
+    metric_type = Column(SQLEnum(MetricTypeEnum, name="metric_type_enum"), nullable=False)
     department_id = Column(Integer, ForeignKey("departments.id"))
     unit = Column(String(20))  # e.g., %, count, hours, index
+    metric_formula = Column(Text)  # e.g., "SUM(value) / COUNT(value)"
+    metric_formula_description = Column(Text)  # e.g., "Average of all values"
+    is_aggregated = Column(Boolean, default=False)
     is_numeric = Column(Boolean, default=True)
-
+    value = Column(Text)  # JSON or text representation of the metric value
+    
     # Relationships
     department = relationship("Department", back_populates="metrics_definitions")
-    records = relationship("MetricRecord", back_populates="metric")
+    records = relationship("MetricRecord", back_populates="metric_definition")
 
-class MetricTypeEnum(str, enum.Enum):
-    performance = "performance"
-    wellness = "wellness"
-
-class Metrics(Base):
-    __tablename__ = "metrics"
+class MetricRecord(Base):
+    __tablename__ = "metric_records"
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     metric_id = Column(Integer, ForeignKey("metric_definitions.id"), nullable=False)
     
-    metric_type = Column(Enum(MetricTypeEnum), nullable=False)
-
+    metric_type = Column(SQLEnum(MetricTypeEnum, name="metric_type_enum"), nullable=False)
     value_numeric = Column(Float, nullable=True)
     value_text = Column(Text, nullable=True)
     value_json = Column(Text, nullable=True)  # for complex structures (optional)
 
-    recorded_at = Column(DateTime(timezone=True))#, server_default=func.now())
+    recorded_at = Column(DateTime(timezone=True))
     notes = Column(Text)
 
     # Relationships
-    user = relationship("User", back_populates="metrics")
-    metric_definition = relationship("MetricDefinition")
-
-"""
-class Dashboard(Base):
-    __tablename__ = "dashboards"
-    
-    name = Column(String(100), nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    layout = Column(Text, nullable=False)  # JSON layout
-    is_public = Column(Boolean, default=False)
-    
-    # Relationships
-    user = relationship("User")
-    """
+    user = relationship("User", back_populates="metric_records")
+    metric_definition = relationship("MetricDefinition", back_populates="records")
