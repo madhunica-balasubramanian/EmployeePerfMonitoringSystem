@@ -31,27 +31,33 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# Seed admin user
-# Seed departments
-# Create DB session
-db = SessionLocal()
-seed_departments(db)
-seed_admin_user(db)
-seed_supervisor_user(db)
-seed_employee_user(db)
-
-#db.close()
 
 # Include routers
+
+app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(metrics.router)
 app.include_router(departments.router)
 app.include_router(metric_records.router)
 app.include_router(dashboards.router)
 
+@app.on_event("startup")
+async def startup_event():
+    """Run tasks on application startup."""
+    db = SessionLocal()
+    try:
+        # Seed metric definitions
+        seed_departments(db)
+        seed_admin_user(db)
+        seed_supervisor_user(db)
+        seed_employee_user(db)
+        seed_metric_definitions(db, "metric_definitions.json")
+    finally:
+        db.close()
 @app.get("/")
 async def root():
     return {"message": "Welcome to Employee Wellness & Performance Tracker"}
-
+for route in app.routes:
+    print(route.path, route.name)
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

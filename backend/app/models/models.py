@@ -57,9 +57,17 @@ class User(Base):
     
     is_active = Column(Boolean, default=True)
     
+    #Add this foreign key to link to EmployeeRole
+    role_id = Column(Integer, ForeignKey("employee_roles.role_id"), nullable=True)
+
     # Relationships
     department = relationship("Department", back_populates="users")
     metric_records = relationship("MetricRecord", back_populates="user")
+    #dashboards = relationship("Dashboard", back_populates="user")
+    employee_role = relationship("EmployeeRole", back_populates="users")  # Add this relationship
+    # Relationships
+    #department = relationship("Department", back_populates="users")
+    #metric_records = relationship("MetricRecord", back_populates="user")
     #dashboards = relationship("Dashboard", back_populates="user")
     
     """
@@ -113,6 +121,7 @@ class MetricDefinition(Base):
     # Relationships
     department = relationship("Department", back_populates="metrics_definitions")
     records = relationship("MetricRecord", back_populates="metric_definition")
+    employee_roles = relationship("MetricDefinitionRole", back_populates="metric_definition")  # Add this relationship
 
 class MetricRecord(Base):
     __tablename__ = "metric_records"
@@ -132,3 +141,46 @@ class MetricRecord(Base):
     # Relationships
     user = relationship("User", back_populates="metric_records")
     metric_definition = relationship("MetricDefinition", back_populates="records")
+    
+"""
+CREATE TABLE employee_roles (
+    role_id SERIAL PRIMARY KEY,
+    role_name VARCHAR(100) NOT NULL UNIQUE,
+    role_description TEXT
+);
+
+"""
+class EmployeeRole(Base):
+    __tablename__ = "employee_roles"
+    
+    role_id = Column(Integer, primary_key=True, index=True)
+    role_name = Column(String(100), nullable=False, unique=True)
+    role_description = Column(Text)
+    
+    # Relationships
+    users = relationship("User", back_populates="employee_role")
+    metrics = relationship("MetricDefinitionRole", back_populates="employee_role")  # Add this relationship
+    # This relationship allows you to access all users associated with a specific role.
+    # For example, if you have a role "Manager", you can get all users with that role.
+
+"""
+CREATE TABLE metric_definition_roles (
+    metric_id INTEGER NOT NULL,
+    role_id INTEGER NOT NULL,
+    PRIMARY KEY (metric_id, role_id),
+    FOREIGN KEY (metric_id) REFERENCES metric_definitions(id),
+    FOREIGN KEY (role_id) REFERENCES employee_roles(role_id)
+);
+"""
+class MetricDefinitionRole(Base):
+    __tablename__ = "metric_definition_roles"
+    
+    metric_id = Column(Integer, ForeignKey("metric_definitions.id"), primary_key=True)
+    role_id = Column(Integer, ForeignKey("employee_roles.role_id"), primary_key=True)
+    
+    # Relationships
+    metric_definition = relationship("MetricDefinition", back_populates="employee_roles")
+    employee_role = relationship("EmployeeRole", back_populates="metrics")
+    # This relationship allows you to access all metrics associated with a specific role.
+    # For example, if you have a role "Manager", you can get all metrics that are relevant to that role.
+    # This is useful for filtering metrics based on the user's role.

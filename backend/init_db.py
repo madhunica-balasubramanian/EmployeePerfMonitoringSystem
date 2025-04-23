@@ -8,6 +8,9 @@ from app.models.models import RoleType, User, Department, DepartmentType, Depart
 from app.models.models import MetricDefinition, MetricRecord  # Import all models
 from app.utils.security import get_password_hash
 from app.models.base import Base
+import json
+from sqlalchemy.orm import Session
+from app.models.models import MetricDefinition, MetricTypeEnum
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine)
@@ -15,6 +18,47 @@ SessionLocal = sessionmaker(bind=engine)
 def init_db():
     Base.metadata.create_all(bind=engine)
     print("✅ Database tables created.")
+
+def seed_metric_definitions(db: Session, json_file: str):
+    try:
+        # Load the JSON data
+        with open(json_file, "r") as file:
+            metric_definitions = json.load(file)
+        
+        for metric in metric_definitions:
+            # Convert metric_type to the Enum value
+            metric_type = MetricTypeEnum[metric["metric_type"].upper()]
+            
+            # Check if the metric already exists
+            existing_metric = db.query(MetricDefinition).filter(
+                MetricDefinition.metric_name == metric["metric_name"]
+            ).first()
+            
+            if not existing_metric:
+                # Create a new MetricDefinition object
+                new_metric = MetricDefinition(
+                    metric_name=metric["metric_name"],
+                    metric_description=metric["metric_description"],
+                    metric_type=metric_type,
+                    department_id=metric["department_id"],
+                    unit=metric["unit"],
+                    metric_formula=metric["metric_formula"],
+                    metric_formula_description=metric["metric_formula_description"],
+                    is_aggregated=metric["is_aggregated"],
+                    is_numeric=metric["is_numeric"],
+                    value=metric["value"]
+                )
+                db.add(new_metric)
+                print(f"✅ Added metric: {metric['metric_name']}")
+            else:
+                print(f"⚠️ Metric already exists: {metric['metric_name']}")
+        
+        # Commit the changes
+        db.commit()
+        print("✅ Metric definitions seeded successfully.")
+    except Exception as e:
+        db.rollback()
+        print(f"❌ Error seeding metric definitions: {str(e)}")
     
 def seed_departments(db: Session):
     departments_to_seed = [
@@ -80,58 +124,123 @@ def seed_admin_user(db: Session):
 # remove this function.
 def seed_supervisor_user(db: Session):
     #db: Session = SessionLocal()
-    try:
-        existing_supervisor = db.query(User).filter(User.username == "jason").first()
-        if existing_supervisor:
-            print("Supervisor already exists.")
-            return
+    supervisors_to_seed = [
+        {
+            "username": "jason",
+            "email": "jason@example.com",
+            "hashed_password": get_password_hash("jason123"),
+            "first_name": "Jason",
+            "last_name": "Smith",
+            "role": RoleType.SUPERVISOR,
+            "department_role": DepartmentRoleType.USPS_SUPERVISOR,
+            "department_id": 1,  # Admin might not be tied to a specific department
+            "employee_id": "EMP002",
+            "is_active": True
+        },
+        {
+            "username": "johnny",
+            "email": "johnny@example.com",
+            "hashed_password": get_password_hash("johnny123"),
+            "first_name": "Johnny",
+            "last_name": "Doe",
+            "role": RoleType.SUPERVISOR,    
+            "department_role": DepartmentRoleType.HEALTHCARE_SUPERVISOR,
+            "department_id": 2,
+            "employee_id": "EMP008",
+            "is_active": True
+        }
+    ]
+    for supervisor in supervisors_to_seed:
+        try:
+            # Check if the employee already exists
+            existing_supervisor = db.query(User).filter(User.username == supervisor["username"]).first()
+            if existing_supervisor:
+                print(f"⚠️ Employee {supervisor['username']} already exists.")
+                continue
 
-        supervisor_user = User(
-            username="jason",
-            email="jason@example.com",
-            hashed_password=get_password_hash("jason123"),
-            first_name="Jason",
-            last_name="Smith",
-            role=RoleType.SUPERVISOR,
-            department_role=DepartmentRoleType.USPS_SUPERVISOR,
-            department_id=1,  # Admin might not be tied to a specific department
-            employee_id="EMP002",
-            is_active=True
-        )
-
-        db.add(supervisor_user)
-        db.commit()
-        print(f"✅ Supervisor user created: {supervisor_user.username}")
-    finally:
-        db.close()
+            # Create a new employee
+            new_employee = User(**supervisor)
+            db.add(new_employee)
+            db.commit()
+            print(f"✅ Supervisor user created: {new_employee.username}")
+        except Exception as e:
+            db.rollback()
+            print(f"❌ Error seeding supervisor user {supervisor['username']}: {str(e)}")
+        finally:
+            db.close()
 
 # once backend logic is implemented to add supervisors by admin and add employees by supervisors, remove this function.
 def seed_employee_user(db: Session):
-    #db: Session = SessionLocal()
-    try:
-        existing_employee = db.query(User).filter(User.username == "patrick").first()
-        if existing_employee:
-            print("Employee already exists.")
-            return
+    employees_to_seed = [
+        {
+            "username": "patrick",
+            "email": "patrick@example.com",
+            "hashed_password": get_password_hash("patrick123"),
+            "first_name": "Patrick",
+            "last_name": "Smith",
+            "role": RoleType.EMPLOYEE,
+            "department_role": DepartmentRoleType.USPS_MAIL_CARRIER,
+            "department_id": 1,
+            "employee_id": "EMP004",
+            "is_active": True
+        },
+           {
+            "username": "Robert",
+            "email": "robert@example.com",
+            "hashed_password": get_password_hash("michael123"),
+            "first_name": "Robert",
+            "last_name": "Ross",
+            "role": RoleType.EMPLOYEE,
+            "department_role": DepartmentRoleType.USPS_OFFICE_ADMIN,
+            "department_id": 1,
+            "employee_id": "EMP007",
+            "is_active": True
+        },
+        {
+            "username": "jane",
+            "email": "jane@example.com",
+            "hashed_password": get_password_hash("jane123"),
+            "first_name": "Jane",
+            "last_name": "Doe",
+            "role": RoleType.EMPLOYEE,
+            "department_role": DepartmentRoleType.HEALTHCARE_NURSE,
+            "department_id": 2,
+            "employee_id": "EMP005",
+            "is_active": True
+        },
+        {
+            "username": "michael",
+            "email": "michael@example.com",
+            "hashed_password": get_password_hash("michael123"),
+            "first_name": "Michael",
+            "last_name": "Johnson",
+            "role": RoleType.EMPLOYEE,
+            "department_role": DepartmentRoleType.HEALTHCARE_ADMIN,
+            "department_id": 2,
+            "employee_id": "EMP006",
+            "is_active": True
+        }
+    ]
+    for employee in employees_to_seed:
+        try:
+            # Check if the employee already exists
+            existing_employee = db.query(User).filter(User.username == employee["username"]).first()
+            if existing_employee:
+                print(f"⚠️ Employee {employee['username']} already exists.")
+                continue
 
-        employee_user = User(
-            username="patrick",
-            email="patrick@example.com",
-            hashed_password=get_password_hash("patrick123"),
-            first_name="Patrick",
-            last_name="Smith",
-            role=RoleType.EMPLOYEE,
-            department_role=DepartmentRoleType.USPS_MAIL_CARRIER,
-            department_id=1,  # Admin might not be tied to a specific department
-            employee_id="EMP003",
-            is_active=True
-        )
+            # Create a new employee
+            new_employee = User(**employee)
+            db.add(new_employee)
+            db.commit()
+            print(f"✅ Supervisor user created: {new_employee.username}")
+        except Exception as e:
+            db.rollback()
+            print(f"❌ Error seeding employee user {employee['username']}: {str(e)}")
+ 
+        finally:
+            db.close()
 
-        db.add(employee_user)
-        db.commit()
-        print(f"✅ Supervisor user created: {employee_user.username}")
-    finally:
-        db.close()
 
 if __name__ == "__main__":
     init_db()
