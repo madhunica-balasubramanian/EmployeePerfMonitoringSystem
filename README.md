@@ -56,4 +56,5 @@ Sleep tracking for drivers/operators
 Fatigue risk index
 Shift durations
 
+https://docs.google.com/document/d/e/2PACX-1vRegqZOl3i0YTdlZSqvOnCUrabUzu6uWfJ6G-TUSGkxZGvjuMyFjvSWoI4mltDJZMpx4qEXxivOGlK5/pub  
 
