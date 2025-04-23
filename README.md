@@ -32,9 +32,9 @@ Roles and Department details considered
 
 **Postal Workers (USPS)**
  **Performance Metrics**
-Mail/package delivery on-time rate
-Customer complaints or praise
-Delivery accuracy
+-Mail/package delivery on-time rate
+-Customer complaints or praise
+-Delivery accuracy
  **Wellness Metrics**
 Daily physical activity (steps/miles walked)
 Injury reports or risk level
