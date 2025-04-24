@@ -46,14 +46,17 @@ async def startup_event():
     """Run tasks on application startup."""
     db = SessionLocal()
     try:
+        # Construct the absolute path to metric_definitions.json
+        json_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "metric_definitions.json")
         # Seed metric definitions
         seed_departments(db)
         seed_admin_user(db)
         seed_supervisor_user(db)
         seed_employee_user(db)
-        seed_metric_definitions(db, "metric_definitions.json")
+        seed_metric_definitions(db, json_file_path)
     finally:
         db.close()
+        
 @app.get("/")
 async def root():
     return {"message": "Welcome to Employee Wellness & Performance Tracker"}

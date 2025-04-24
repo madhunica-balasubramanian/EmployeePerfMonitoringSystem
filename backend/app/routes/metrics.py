@@ -43,13 +43,38 @@ class MetricResponse(BaseModel):
 # Example usage from frontend -  GET /api/v1/metrics?metric_type=wellness&department_id=1
 # Example usage from frontend -  GET /api/v1/metrics?metric_type=performance&department_id=1
 
-
+# View my performance metrics 
 @router.get("/performance-metrics")
-def get_performance_metrics(role: RoleType = Depends(get_current_user_role)):
+def get_performance_metrics(db: Session = Depends(get_db), current_user: User = Depends(get_current_user),
+    role: RoleType = Depends(get_current_user_role)):
     if role == RoleType.EMPLOYEE:
-        return {"message": "Fetching performance metrics for Employee"}
+        metrics = db.query(MetricDefinition).filter(
+            MetricDefinition.metric_type == MetricTypeEnum.performance.value,
+            MetricDefinition.department_id == current_user.department_id
+        ).all()
+        return metrics
+        #return {"message": "Fetching performance metrics for the logged in Employee"}
     elif role == RoleType.SUPERVISOR:
-        return {"message": "Fetching performance metrics for Supervisor"}
+        # Supervisor: Fetch all performance metrics for their department
+       
+        return {"message": "Fetching performance metrics of all employees- Supervisor"}
     else:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
     
+# View my wellness metrics
+@router.get("/wellness-metrics")
+def get_wellness_metrics(db: Session = Depends(get_db), current_user: User = Depends(get_current_user),
+    role: RoleType = Depends(get_current_user_role)):
+    if role == RoleType.EMPLOYEE:
+        metrics = db.query(MetricDefinition).filter(
+            MetricDefinition.metric_type == MetricTypeEnum.wellness.value,
+            MetricDefinition.department_id == current_user.department_id
+        ).all()
+        return metrics
+        #return {"message": "Fetching performance metrics for the logged in Employee"}
+    elif role == RoleType.SUPERVISOR:
+        # Supervisor: Fetch all performance metrics for their department
+       
+        return {"message": "Fetching wellness metrics- Supervisor"}
+    else:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")

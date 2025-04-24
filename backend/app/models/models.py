@@ -7,7 +7,7 @@ from app.models.base import Base
 class DepartmentType(str, enum.Enum):
     USPS = "USPS"
     HEALTHCARE = "HEALTHCARE"
-    TRANSPORTATION = "TRANSPORTATION"
+
 
 class RoleType(str, enum.Enum):
     EMPLOYEE = "EMPLOYEE"

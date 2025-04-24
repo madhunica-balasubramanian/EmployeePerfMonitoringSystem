@@ -63,8 +63,7 @@ def seed_metric_definitions(db: Session, json_file: str):
 def seed_departments(db: Session):
     departments_to_seed = [
         {"name": "US Postal Service", "type": DepartmentType.USPS, "description": "Handles mail delivery"},
-        {"name": "Healthcare", "type": DepartmentType.HEALTHCARE, "description": "Federal health services"},
-        {"name": "Transportation", "type": DepartmentType.TRANSPORTATION, "description": "Transport and aviation"},
+        {"name": "Healthcare", "type": DepartmentType.HEALTHCARE, "description": "Federal health services"}
     ]
     print("Departments to seed:")
     print(departments_to_seed)   # Check the seed data

@@ -1,12 +1,10 @@
 from passlib.context import CryptContext
 from jose import jwt
 from datetime import datetime, timedelta
+from app.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-SECRET_KEY = "cmpe272project"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 10
 
 # Generate a password hash for a given plain password.
 # This function is used to securely store user passwords in the database.

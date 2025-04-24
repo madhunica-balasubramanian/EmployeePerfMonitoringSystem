@@ -18,10 +18,14 @@ router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
 @router.post("/login")
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    print("inside login....")
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
     
     # Include the user's role in the token payload
-    token = create_access_token(data={"sub": user.email, "role": user.role.value})
+    # Include the user's role in the token payload
+    token_data = {"sub": user.username, "role": user.role.value, "user_id": user.id}
+    print("Token payload:", token_data)  # Debug print
+    token = create_access_token(data=token_data)
     return {"access_token": token, "token_type": "bearer"}
