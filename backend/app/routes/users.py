@@ -6,6 +6,9 @@ from app.models.models import User, RoleType, DepartmentRoleType, DepartmentType
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from app.auth.deps import get_current_user_role
+from app.auth.deps import is_admin
+from app.utils.security import get_password_hash
+
 
 
 router = APIRouter(prefix="/api/v1/users", tags=["users"])
@@ -29,6 +32,16 @@ class UserResponse(UserBase):
     
     class Config:
         orm_mode = True
+        
+class SupervisorCreate(BaseModel):
+    username: str
+    email: EmailStr
+    password: str
+    first_name: str
+    last_name: str
+    department_role: DepartmentRoleType
+    department_id: int
+    is_active: Optional[bool] = True
 
 @router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def create_user(user: UserCreate, db: Session = Depends(get_db)):
@@ -70,6 +83,46 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
     return new_user
+
+
+@router.post("/create_supervisor", status_code=status.HTTP_201_CREATED)
+def create_supervisor(
+    supervisor: SupervisorCreate,
+    db: Session = Depends(get_db),
+    admin_user: User = Depends(is_admin)):
+    # Check username/email already exists
+    db_user = db.query(User).filter(
+        (User.username == supervisor.username) | (User.email == supervisor.email)).first()
+    if db_user:
+        raise HTTPException(status_code=400, detail="Username or email already registered.")
+    
+    # Auto-generate employee ID
+    last_employee = db.query(User).filter(User.employee_id.like("EMP%")).order_by(User.employee_id.desc()).first()
+    if last_employee and last_employee.employee_id:
+        last_id = int(last_employee.employee_id[3:])
+        new_employee_id = f"EMP{last_id + 1:03d}"
+    else:
+        new_employee_id = "EMP001"
+
+    # Create supervisor
+    new_supervisor = User(
+        username=supervisor.username,
+        email=supervisor.email,
+        hashed_password=get_password_hash(supervisor.password),
+        first_name=supervisor.first_name,
+        last_name=supervisor.last_name,
+        role=RoleType.SUPERVISOR,
+        department_role=supervisor.department_role,
+        department_id=supervisor.department_id,
+        employee_id=new_employee_id,
+        is_active=supervisor.is_active
+    )
+    db.add(new_supervisor)
+    db.commit()
+    db.refresh(new_supervisor)
+
+    return {"message": f"Supervisor {new_supervisor.username} created successfully", "employee_id": new_employee_id}
+
 
 @router.get("/", response_model=List[UserResponse])
 def get_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
