@@ -8,6 +8,7 @@ from datetime import datetime
 from app.auth.deps import get_current_user_role
 from app.auth.deps import is_admin
 from app.utils.security import get_password_hash
+from app.auth.deps import is_supervisor
 
 
 
@@ -32,6 +33,16 @@ class UserResponse(UserBase):
     
     class Config:
         orm_mode = True
+
+class EmployeeCreate(BaseModel):
+    username: str
+    email: EmailStr
+    password: str
+    first_name: str
+    last_name: str
+    department_role: DepartmentRoleType
+    department_id: int
+    is_active: Optional[bool] = True
         
 class SupervisorCreate(BaseModel):
     username: str
@@ -123,6 +134,45 @@ def create_supervisor(
 
     return {"message": f"Supervisor {new_supervisor.username} created successfully", "employee_id": new_employee_id}
 
+@router.post("/create_employee", status_code=201)
+def create_employee(
+    employee: EmployeeCreate,
+    db: Session = Depends(get_db),
+    supervisor_user: User = Depends(is_supervisor)):
+    # Check if username or email already exists
+    existing_user = db.query(User).filter(
+        (User.username == employee.username) | (User.email == employee.email)
+    ).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Username or email already registered.")
+    
+    # Auto-generate employee ID
+    last_employee = db.query(User).filter(User.employee_id.like("EMP%")).order_by(User.employee_id.desc()).first()
+    if last_employee and last_employee.employee_id:
+        last_id = int(last_employee.employee_id[3:])
+        new_employee_id = f"EMP{last_id + 1:03d}"
+    else:
+        new_employee_id = "EMP001"
+    
+    # Create new employee
+    new_employee = User(
+        username=employee.username,
+        email=employee.email,
+        hashed_password=get_password_hash(employee.password),
+        first_name=employee.first_name,
+        last_name=employee.last_name,
+        role=RoleType.EMPLOYEE,  # Always employee
+        department_role=employee.department_role,
+        department_id=employee.department_id,
+        employee_id=new_employee_id,
+        is_active=employee.is_active
+    )
+    
+    db.add(new_employee)
+    db.commit()
+    db.refresh(new_employee)
+
+    return {"message": f"Employee {new_employee.username} created successfully!", "employee_id": new_employee_id}
 
 @router.get("/", response_model=List[UserResponse])
 def get_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
@@ -168,3 +218,46 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     db.delete(db_user)
     db.commit()
     return None
+
+@router.delete("/delete_supervisor/{supervisor_id}", status_code=status.HTTP_200_OK)
+def delete_supervisor(
+    supervisor_id: int,
+    db: Session = Depends(get_db),
+    admin_user: User = Depends(is_admin)):
+    supervisor = db.query(User).filter(User.id == supervisor_id).first()
+
+    if not supervisor:
+        raise HTTPException(status_code=404, detail="Supervisor not found.")
+
+    if supervisor.role != RoleType.SUPERVISOR:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only delete supervisors."
+        )
+
+    db.delete(supervisor)
+    db.commit()
+
+    return {"message": f"Supervisor {supervisor.username} deleted successfully."}
+
+
+@router.delete("/delete_employee/{employee_id}", status_code=status.HTTP_200_OK)
+def delete_employee(
+    employee_id: int,
+    db: Session = Depends(get_db),
+    supervisor_user: User = Depends(is_supervisor)):
+    employee = db.query(User).filter(User.id == employee_id).first()
+
+    if not employee:
+        raise HTTPException(status_code=404, detail="Employee not found.")
+
+    if employee.role != RoleType.EMPLOYEE:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only delete employees."
+        )
+
+    db.delete(employee)
+    db.commit()
+
+    return {"message": f"Employee {employee.username} deleted successfully."}

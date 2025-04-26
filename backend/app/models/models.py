@@ -7,6 +7,9 @@ from app.models.base import Base
 class DepartmentType(str, enum.Enum):
     USPS = "USPS"
     HEALTHCARE = "HEALTHCARE"
+    TRANSPORTATION = "TRANSPORTATION"
+    IT_SUPPORT = "IT_SUPPORT"
+    FINANCE = "FINANCE"
 
 
 class RoleType(str, enum.Enum):
