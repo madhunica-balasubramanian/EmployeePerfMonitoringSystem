@@ -13,9 +13,13 @@ from app.models.models import User
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-
 async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
-    print("get_current_user loaded")
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    print("get_current_user loaded..")
     print("Raw token received:", token)  # Debug print
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -28,28 +32,19 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
             #    headers={"WWW-Authenticate": "Bearer"},
             #)
         if username is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid username",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+            print("Username is Invalid!!! ")
+            raise credentials_exception
     except JWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        print("JWT Token Error!!! ")
+        raise credentials_exception
 
     if user_id:
         user = db.query(User).filter(User.id == user_id).first()
     elif (username):
         user = db.query(User).filter(User.username == username).first()
     if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        print("Couldn't even fetch USER!!!! ")
+        raise credentials_exception
 
     return user
 

@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from app.utils.security import create_access_token  # Corrected the module path if 'utils' is the correct folder
+from app.utils.security import create_access_token, verify_password  # Corrected the module path if 'utils' is the correct folder
 from app.services.auth_service import authenticate_user
 from app.models.base import get_db
+from datetime import datetime, timedelta
+from jose import jwt
 
 #router = APIRouter()
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
@@ -22,10 +24,15 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-    
+    if not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
     # Include the user's role in the token payload
     # Include the user's role in the token payload
     token_data = {"sub": user.username, "role": user.role.value, "user_id": user.id}
     print("Token payload:", token_data)  # Debug print
     token = create_access_token(data=token_data)
     return {"access_token": token, "token_type": "bearer"}
+# backend/app/auth/auth_handler.py
+
+
+

@@ -3,10 +3,13 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.types import Enum as SQLEnum  # Correct enum for SQLAlchemy
 import enum  # Python enum
 from app.models.base import Base
+from sqlalchemy import JSON
 
 class DepartmentType(str, enum.Enum):
     USPS = "USPS"
     HEALTHCARE = "HEALTHCARE"
+    HOMELANDSECURITY = "HOMELANDSECURITY"
+    TRANSPORTATION   = "TRANSPORTATION"
 
 
 class RoleType(str, enum.Enum):
@@ -15,6 +18,7 @@ class RoleType(str, enum.Enum):
     ADMIN = "ADMIN"
     
 class DepartmentRoleType(str, enum.Enum):
+    SUPERVISOR = "SUPERVISOR"
     # Healthcare roles
     HEALTHCARE_SUPERVISOR = "HEALTHCARE_SUPERVISOR"
     HEALTHCARE_ADMIN = "HEALTHCARE_ADMIN"
@@ -70,26 +74,6 @@ class User(Base):
     #metric_records = relationship("MetricRecord", back_populates="user")
     #dashboards = relationship("Dashboard", back_populates="user")
     
-    """
-    How users and departments are related:
-    - Each user belongs to one department.
-    - Each department can have multiple users.
-    - The relationship is established through the foreign key department_id in the User model.
-    - The relationship is bidirectional, meaning you can access the users of a department 
-       from the department model and vice versa.
-    
-    Example: 
-        dept = Department(name="Engineering", type=DepartmentType.TECH)
-        user = User(
-                username="john",
-                email="john@example.com",
-                employee_id="EMP123",
-                role=RoleType.EMPLOYEE,
-                department=dept
-            )
-        user.department.name ➝ "Engineering"
-        dept.users ➝ list of all users in Engineering
-    """
 
 class Department(Base):
     __tablename__ = "departments"
@@ -132,8 +116,9 @@ class MetricRecord(Base):
     
     metric_type = Column(SQLEnum(MetricTypeEnum, name="metric_type_enum"), nullable=False)
     value_numeric = Column(Float, nullable=True)
+    value_json = Column(JSON, nullable=True)
     value_text = Column(Text, nullable=True)
-    value_json = Column(Text, nullable=True)  # for complex structures (optional)
+    #value_json = Column(Text, nullable=True)  # for complex structures (optional)
 
     recorded_at = Column(DateTime(timezone=True))
     notes = Column(Text)
