@@ -175,7 +175,7 @@
         "metric_description": "Aggregated customer feedback score from surveys.",
         "metric_type": "Performance",
         "department_id": 1,
-        "unit": "Score",
+        "unit": "Text",
         "metric_formula": null,
         "metric_formula_description": "Calculated from customer feedback surveys.",
         "is_aggregated": true,

@@ -13,6 +13,7 @@ from app.config import DATABASE_URL
 from sqlalchemy import create_engine
 from app.models.base import SessionLocal
 from app.auth.deps import get_current_user
+from app.routes import profile
 
 import sys
 print(sys.path)
@@ -40,6 +41,7 @@ app.include_router(metrics.router)
 app.include_router(departments.router)
 app.include_router(metric_records.router)
 app.include_router(dashboards.router)
+app.include_router(profile.router)
 
 @app.on_event("startup")
 async def startup_event():
