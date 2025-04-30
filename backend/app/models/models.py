@@ -8,8 +8,14 @@ from sqlalchemy import JSON
 class DepartmentType(str, enum.Enum):
     USPS = "USPS"
     HEALTHCARE = "HEALTHCARE"
+<<<<<<< HEAD
     HOMELANDSECURITY = "HOMELANDSECURITY"
     TRANSPORTATION   = "TRANSPORTATION"
+=======
+    TRANSPORTATION = "TRANSPORTATION"
+    IT_SUPPORT = "IT_SUPPORT"
+    FINANCE = "FINANCE"
+>>>>>>> origin/backend-feature
 
 
 class RoleType(str, enum.Enum):

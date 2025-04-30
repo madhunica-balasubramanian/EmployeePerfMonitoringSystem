@@ -78,7 +78,7 @@ def is_employee(user: User = Depends(get_current_active_user)):
     return user
 
 def is_supervisor(user: User = Depends(get_current_active_user)):
-    if user.role not in ["supervisor"]:
+    if user.role != RoleType.SUPERVISOR:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not enough permissions"
@@ -86,7 +86,7 @@ def is_supervisor(user: User = Depends(get_current_active_user)):
     return user
 
 def is_admin(user: User = Depends(get_current_active_user)):
-    if user.role != "admin":
+    if user.role != RoleType.ADMIN:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not enough permissions"

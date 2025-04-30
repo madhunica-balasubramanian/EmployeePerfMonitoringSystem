@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Database configuration
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/wellness_db")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:cmpe202@localhost:5432/wellness_db")
 
 # JWT Secret for authentication
 SECRET_KEY = os.getenv("SECRET_KEY", "cmpe272")

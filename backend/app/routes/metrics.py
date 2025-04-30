@@ -2,12 +2,16 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from app.models.base import get_db
-from app.models.models import User, RoleType, MetricDefinition
+from app.models.models import User, RoleType, MetricDefinition, MetricRecord
 from app.auth.deps import get_current_user  # Assumes you're using OAuth2/JWT
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from enum import Enum
 from app.auth.deps import get_current_user_role
+from datetime import datetime, timezone
+from sqlalchemy import Date
+
+
 
 router = APIRouter(prefix="/api/v1/metrics", tags=["metrics"])
 
@@ -37,6 +41,8 @@ class MetricResponse(BaseModel):
 
     class Config:
         orm_mode = True
+        
+
         
 # Example usage from frontend -  GET /api/v1/metrics?metric_type=wellness
 # Example usage from frontend -  GET /api/v1/metrics?metric_type=performance
@@ -78,3 +84,4 @@ def get_wellness_metrics(db: Session = Depends(get_db), current_user: User = Dep
         return {"message": "Fetching wellness metrics- Supervisor"}
     else:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+    
