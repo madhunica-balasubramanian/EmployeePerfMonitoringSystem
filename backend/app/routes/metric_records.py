@@ -39,6 +39,15 @@ class MetricItem(BaseModel):
 class BulkMetricSubmitRequest(BaseModel):
     metrics: list[MetricItem]
     
+class SupervisorMetricItem(BaseModel):
+    metric_id: int
+    value_numeric: Optional[float] = None
+    value_text: Optional[str] = None
+    value_json: Optional[dict] = None
+
+class SupervisorBulkMetricUpdate(BaseModel):
+    metrics: list[SupervisorMetricItem]
+    
 '''
 @router.get("/view")
 async def get_metrics():
@@ -107,59 +116,68 @@ def employee_submit_metrics(
 
 
 @router.post("/supervisor-update-metric")
-def supervisor_update_employee_metric(
-    update_request: UpdateMetricRequest,
+def supervisor_bulk_update_employee_metric(
+    update_request: SupervisorBulkMetricUpdate,
     employee_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
     role: RoleType = Depends(get_current_user_role)):
-    # ✅ Only SUPERVISORS allowed
+    #  Only SUPERVISORS allowed
     if role != RoleType.SUPERVISOR:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only supervisors can update employee metrics.")
+        raise HTTPException(status_code=403, detail="Only supervisors can update employee metrics.")
 
-    # ✅ Get the supervisor's department
-    supervisor_department = current_user.department.type.value  # USPS, HEALTHCARE, etc.
+    supervisor_department = current_user.department.type.value 
 
-    # ✅ Allowed metrics for supervisor's department
     allowed_metrics = SUPERVISOR_EDITABLE_METRICS.get(supervisor_department, [])
 
-    # ✅ Check if supervisor is allowed to edit this metric
-    if update_request.metric_id not in allowed_metrics:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not allowed to edit this metric.")
-
-    # ✅ Check if employee belongs to same department
     employee = db.query(User).filter(User.id == employee_id).first()
-
     if not employee or employee.department_id != current_user.department_id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You are not allowed to update metrics of employees outside your department.")
+        raise HTTPException(status_code=403, detail="You are not allowed to update metrics of employees outside your department.")
 
-    # ✅ Proceed to update
     today = datetime.now(timezone.utc).date()
-    record = db.query(MetricRecord).filter(
-        MetricRecord.user_id == employee.id,
-        MetricRecord.metric_id == update_request.metric_id,
-        MetricRecord.recorded_at.cast(Date) == today
-    ).first()
 
-    if not record:
-        record = MetricRecord(
-            user_id=employee.id,
-            metric_id=update_request.metric_id,
-            metric_type="performance",  # Assuming these are performance metrics
-            recorded_at=datetime.now(timezone.utc)
-        )
-        db.add(record)
+    for metric_item in update_request.metrics:
+        if metric_item.metric_id not in allowed_metrics:
+            raise HTTPException(
+                status_code=403,
+                detail=f"You are not allowed to edit metric_id {metric_item.metric_id}"
+            )
 
-    if update_request.value_numeric is not None:
-        record.value_numeric = update_request.value_numeric
-    if update_request.value_text is not None:
-        record.value_text = update_request.value_text
-    if update_request.value_json is not None:
-        record.value_json = update_request.value_json
+        metric_def = db.query(MetricDefinition).filter(
+            MetricDefinition.id == metric_item.metric_id,
+            MetricDefinition.department_id == current_user.department_id
+        ).first()
+        if not metric_def:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Metric ID {metric_item.metric_id} not found or not authorized."
+            )
+
+        record = db.query(MetricRecord).filter(
+            MetricRecord.user_id == employee.id,
+            MetricRecord.metric_id == metric_item.metric_id,
+            MetricRecord.recorded_at.cast(Date) == today
+        ).first()
+
+        if not record:
+            record = MetricRecord(
+                user_id=employee.id,
+                metric_id=metric_item.metric_id,
+                metric_type=metric_def.metric_type,
+                recorded_at=datetime.now(timezone.utc)
+            )
+            db.add(record)
+
+        if metric_item.value_numeric is not None:
+            record.value_numeric = metric_item.value_numeric
+        if metric_item.value_text is not None:
+            record.value_text = metric_item.value_text
+        if metric_item.value_json is not None:
+            record.value_json = metric_item.value_json
 
     db.commit()
+    return {"message": "Metrics updated successfully by Supervisor."}
 
-    return {"message": "Employee metric updated successfully by Supervisor."}
 
 @router.get("/employee/{employee_id}/metrics")
 def view_employee_metrics(
