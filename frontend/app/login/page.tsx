@@ -1,105 +1,100 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { ArrowLeft } from "lucide-react"
-import Link from "next/link"
-
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '../../lib/auth-context'
 
 export default function LoginPage() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
   const router = useRouter()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [role, setRole] = useState("supervisor")
-  const [isLoading, setIsLoading] = useState(false)
+  const { login } = useAuth()
 
-  const handleLogin = async (e: React.FormEvent) => {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setIsLoading(true)
+    setError(null)
+    setLoading(true)
 
-    // Simulate login - in a real app, this would validate credentials with a backend
-    setTimeout(() => {
-      setIsLoading(false)
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      })
 
-      // Redirect based on role
-      if (role === "admin") {
-        router.push("/admin/dashboard")
-      } else {
-        router.push("/dashboard")
+      if (!response.ok) {
+        throw new Error('Invalid credentials')
       }
-    }, 1000)
+
+      const data = await response.json()
+      await login(data.token)
+      router.push('/dashboard')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Login failed')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <div className="container flex flex-1 items-center justify-center py-12">
-        <div className="w-full max-w-md">
-          <Link href="/" className="mb-4 flex items-center text-sm text-muted-foreground hover:underline">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to home
-          </Link>
-          <Card>
-            <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl font-bold">Login</CardTitle>
-              <CardDescription>Enter your credentials to access your dashboard</CardDescription>
-            </CardHeader>
-            <form onSubmit={handleLogin}>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="user@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Password</Label>
-                    <Link href="#" className="text-xs text-muted-foreground hover:underline">
-                      Forgot password?
-                    </Link>
-                  </div>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Login as</Label>
-                  <RadioGroup defaultValue="supervisor" value={role} onValueChange={setRole} className="flex space-x-4">
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="supervisor" id="supervisor" />
-                      <Label htmlFor="supervisor">Supervisor</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="admin" id="admin" />
-                      <Label htmlFor="admin">Admin</Label>
-                    </div>
-                  </RadioGroup>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Logging in..." : "Login"}
-                </Button>
-              </CardFooter>
-            </form>
-          </Card>
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="mx-auto w-full max-w-md space-y-6 p-6">
+        <div className="space-y-2 text-center">
+          <h1 className="text-2xl font-bold">Login</h1>
+          <p className="text-muted-foreground">
+            Enter your credentials to access your account
+          </p>
         </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <label
+              htmlFor="email"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              placeholder="Enter your email"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <label
+              htmlFor="password"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+          {error && (
+            <div className="text-sm text-destructive">{error}</div>
+          )}
+          <button
+            type="submit"
+            disabled={loading}
+            className="inline-flex w-full items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+          >
+            {loading ? 'Logging in...' : 'Login'}
+          </button>
+        </form>
       </div>
     </div>
   )
