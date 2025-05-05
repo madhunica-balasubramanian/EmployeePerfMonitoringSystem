@@ -135,7 +135,7 @@
     },
     
     {
-        "metric_name": "Customer Tickets Opened",
+        "metric_name": "Customer Tickets Handled",
         "metric_description": "Number of customer tickets opened during the workday.",
         "metric_type": "Performance",
         "department_id": 1,
@@ -147,7 +147,7 @@
         "value": "0"
     },
     {
-        "metric_name": "Customer Tickets Handled and Resolved",
+        "metric_name": "Customer Tickets Resolved",
         "metric_description": "Number of customer inquiries handled and resolved during the workday.",
         "metric_type": "Performance",
         "department_id": 1,
@@ -159,7 +159,7 @@
         "value": "0"
       },
      {
-        "metric_name": "Customer Satisfaction Score",
+        "metric_name": "Aggregate Customer Satisfaction Score",
         "metric_description": "Average customer satisfaction score from feedback surveys.",
         "metric_type": "Performance",
         "department_id": 1,
@@ -315,6 +315,94 @@
       "is_aggregated": true,
       "is_numeric": true,
       "value": "0"
-    }
+    },
+    {
+      "metric_name": "Patients Attended",
+      "metric_description": "Number of unique patients attended during the shift.",
+      "metric_type": "Performance",
+      "department_id": 2,
+      "unit": "Count",
+      "metric_formula_description": "Count from patient logs or EMR entries.",
+      "is_aggregated": true,
+      "is_numeric": true,
+      "value": "0"
+    },
+    {
+      "metric_name": "Medication Errors",
+      "metric_description": "Number of medication-related errors recorded during the shift.",
+      "metric_type": "Performance",
+      "department_id": 2,
+      "unit": "Count",
+      "metric_formula_description": "Pulled from error reporting logs.",
+      "is_aggregated": true,
+      "is_numeric": true,
+      "value": "0"
+    },
+    {
+      "metric_name": "Clinical Procedures Completed",
+      "metric_description": "Number of clinical procedures (e.g., IV insertions, wound dressings) completed.",
+      "metric_type": "Performance",
+      "department_id": 2,
+      "unit": "Count",
+      "metric_formula_description": "Logged through clinical activity records.",
+      "is_aggregated": true,
+      "is_numeric": true,
+      "value": "0"
+    },
+    {
+      "metric_name": "Breaks Taken On Time",
+      "metric_description": "Number of scheduled breaks taken on time.",
+      "metric_type": "Wellness",
+      "department_id": 2,
+      "unit": "Count",
+      "metric_formula_description": "Extracted from shift logs and badge swipe data.",
+      "is_aggregated": true,
+      "is_numeric": true,
+      "value": "0"
+    },
+    {
+      "metric_name": "Physical Strain Reports",
+      "metric_description": "Number of self-reported physical strain or injury incidents.",
+      "metric_type": "Wellness",
+      "department_id": 2,
+      "unit": "Count",
+      "metric_formula_description": "Collected from wellness surveys or incident reports.",
+      "is_aggregated": true,
+      "is_numeric": true,
+      "value": "0"
+    },
+    {
+      "metric_name": "Insurance Verifications Completed",
+      "metric_description": "Number of patient insurance verifications completed.",
+      "metric_type": "Performance",
+      "department_id": 2,
+      "unit": "Count",
+      "metric_formula_description": "Logged from administrative system or EHR backend.",
+      "is_aggregated": true,
+      "is_numeric": true,
+      "value": "0"
+    },
+    {
+      "metric_name": "Patient Check-ins Processed",
+      "metric_description": "Total number of patient check-ins handled at front desk.",
+      "metric_type": "Performance",
+      "department_id": 2,
+      "unit": "Count",
+      "metric_formula_description": "Logged from reception or front desk system.",
+      "is_aggregated": true,
+      "is_numeric": true,
+      "value": "0"
+    },
+    {
+      "metric_name": "Screen Time Without Break",
+      "metric_description": "Average screen time between ergonomic breaks.",
+      "metric_type": "Wellness",
+      "department_id": 2,
+      "unit": "Minutes",
+      "metric_formula_description": "Measured via system activity or self-report.",
+      "is_aggregated": true,
+      "is_numeric": true,
+      "value": "0"
+    }    
   ]
   

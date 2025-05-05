@@ -45,6 +45,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     if user is None:
         print("Couldn't even fetch USER!!!! ")
         raise credentials_exception
+    print(f"User: {user.username}, ID: {user.id}, role_id: {user.role_id}, department_id: {user.department_id}")
 
     return user
 

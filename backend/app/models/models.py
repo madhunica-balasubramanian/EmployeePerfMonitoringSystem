@@ -8,14 +8,9 @@ from sqlalchemy import JSON
 class DepartmentType(str, enum.Enum):
     USPS = "USPS"
     HEALTHCARE = "HEALTHCARE"
-<<<<<<< HEAD
-    HOMELANDSECURITY = "HOMELANDSECURITY"
-    TRANSPORTATION   = "TRANSPORTATION"
-=======
     TRANSPORTATION = "TRANSPORTATION"
     IT_SUPPORT = "IT_SUPPORT"
     FINANCE = "FINANCE"
->>>>>>> origin/backend-feature
 
 
 class RoleType(str, enum.Enum):
@@ -23,7 +18,7 @@ class RoleType(str, enum.Enum):
     SUPERVISOR = "SUPERVISOR"
     ADMIN = "ADMIN"
     
-class DepartmentRoleType(str, enum.Enum):
+"""class DepartmentRoleType(str, enum.Enum):
     SUPERVISOR = "SUPERVISOR"
     # Healthcare roles
     HEALTHCARE_SUPERVISOR = "HEALTHCARE_SUPERVISOR"
@@ -39,11 +34,30 @@ class DepartmentRoleType(str, enum.Enum):
     TRANSPORTATION_DRIVER = "TRANSPORTATION_DRIVER"
     TRANSPORTATION_DISPATCHER = "TRANSPORTATION_DISPATCHER"
     ADMIN2 = "ADMIN2"
+    """
+import enum
+
+class DepartmentRoleType(enum.Enum):
+    USPS_MAIL_CARRIER = 1
+    USPS_OFFICE_ADMIN = 2
+    HEALTHCARE_NURSE = 3
+    HEALTHCARE_ADMIN = 4
+
+    # The rest can follow in any order
+    SUPERVISOR = 5
+    HEALTHCARE_SUPERVISOR = 6
+    USPS_SUPERVISOR = 7
+    TRANSPORTATION_DRIVER = 8
+    TRANSPORTATION_DISPATCHER = 9
+    ADMIN2 = 10
+
 
 class MetricTypeEnum(str, enum.Enum):
     PERFORMANCE = "performance"
     WELLNESS = "wellness"
+    
 
+    
 class User(Base):
     __tablename__ = "users"
     
@@ -68,7 +82,8 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     
     #Add this foreign key to link to EmployeeRole
-    role_id = Column(Integer, ForeignKey("employee_roles.role_id"), nullable=True)
+    role_id = Column(Integer, ForeignKey("employee_roles.role_id"))
+
 
     # Relationships
     department = relationship("Department", back_populates="users")

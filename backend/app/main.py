@@ -49,13 +49,16 @@ async def startup_event():
     db = SessionLocal()
     try:
         # Construct the absolute path to metric_definitions.json
+        reset_metric_id_sequence(db)
         json_file_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "metric_definitions.json")
         # Seed metric definitions
         seed_departments(db)
+        seed_roles(db) 
         seed_admin_user(db)
         seed_supervisor_user(db)
         seed_employee_user(db)
         seed_metric_definitions(db, json_file_path)
+        seed_metric_definition_roles(db)
     finally:
         db.close()
         

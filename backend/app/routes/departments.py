@@ -11,8 +11,10 @@ from enum import Enum
 router = APIRouter(prefix="/api/v1/departments", tags=["departments"])
 
 class DepartmentType(str, Enum):
-    USPS = "USPS"
-    HEALTHCARE = "HEALTHCARE"
+    USPS             = "USPS"
+    HEALTHCARE       = "HEALTHCARE"
+    HOMELANDSECURITY = "HOMELANDSECURITY"
+    TRANSPORTATION   = "TRANSPORTATION"
     # Add other types if you have more
 
 # Pydantic Request Schema for creating a department

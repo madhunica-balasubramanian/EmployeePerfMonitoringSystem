@@ -4,12 +4,13 @@ from app.config import DATABASE_URL
 from sqlalchemy.orm import Session
 from app.models.base import SessionLocal
 #from app.models.models import Department, DepartmentType
-from app.models.models import RoleType, User, Department, DepartmentType, DepartmentRoleType
+from app.models.models import RoleType, User, Department, DepartmentType, DepartmentRoleType, EmployeeRole
 from app.models.models import MetricDefinition, MetricRecord  # Import all models
 from app.utils.security import get_password_hash
 from app.models.base import Base
 import json
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from app.models.models import MetricDefinition, MetricTypeEnum
 
 engine = create_engine(DATABASE_URL)
@@ -18,6 +19,17 @@ SessionLocal = sessionmaker(bind=engine)
 def init_db():
     Base.metadata.create_all(bind=engine)
     print("✅ Database tables created.")
+
+
+def reset_metric_id_sequence(db: Session):
+    db.execute(text("""
+        SELECT setval(
+            'metric_definitions_id_seq',
+            COALESCE((SELECT MAX(id) FROM metric_definitions), 1),
+            true
+        );
+    """))
+    db.commit()
 
 def seed_metric_definitions(db: Session, json_file: str):
     try:
@@ -33,7 +45,7 @@ def seed_metric_definitions(db: Session, json_file: str):
             existing_metric = db.query(MetricDefinition).filter(
                 MetricDefinition.metric_name == metric["metric_name"]
             ).first()
-            
+            metric_formula = metric.get("metric_formula", None)
             if not existing_metric:
                 # Create a new MetricDefinition object
                 new_metric = MetricDefinition(
@@ -42,7 +54,7 @@ def seed_metric_definitions(db: Session, json_file: str):
                     metric_type=metric_type,
                     department_id=metric["department_id"],
                     unit=metric["unit"],
-                    metric_formula=metric["metric_formula"],
+                    metric_formula=metric_formula,
                     metric_formula_description=metric["metric_formula_description"],
                     is_aggregated=metric["is_aggregated"],
                     is_numeric=metric["is_numeric"],
@@ -133,6 +145,7 @@ def seed_supervisor_user(db: Session):
             "role": RoleType.SUPERVISOR,
             "department_role": DepartmentRoleType.USPS_SUPERVISOR,
             "department_id": 1,  # Admin might not be tied to a specific department
+            "role_id" : DepartmentRoleType["USPS_SUPERVISOR"].value,
             "employee_id": "EMP002",
             "is_active": True
         },
@@ -145,6 +158,7 @@ def seed_supervisor_user(db: Session):
             "role": RoleType.SUPERVISOR,    
             "department_role": DepartmentRoleType.HEALTHCARE_SUPERVISOR,
             "department_id": 2,
+            "role_id" : DepartmentRoleType["HEALTHCARE_SUPERVISOR"].value,
             "employee_id": "EMP008",
             "is_active": True
         }
@@ -180,6 +194,7 @@ def seed_employee_user(db: Session):
             "role": RoleType.EMPLOYEE,
             "department_role": DepartmentRoleType.USPS_MAIL_CARRIER,
             "department_id": 1,
+            "role_id" : DepartmentRoleType["USPS_MAIL_CARRIER"].value,
             "employee_id": "EMP004",
             "is_active": True
         },
@@ -192,6 +207,7 @@ def seed_employee_user(db: Session):
             "role": RoleType.EMPLOYEE,
             "department_role": DepartmentRoleType.USPS_OFFICE_ADMIN,
             "department_id": 1,
+            "role_id" : DepartmentRoleType["USPS_OFFICE_ADMIN"].value,
             "employee_id": "EMP007",
             "is_active": True
         },
@@ -204,6 +220,7 @@ def seed_employee_user(db: Session):
             "role": RoleType.EMPLOYEE,
             "department_role": DepartmentRoleType.HEALTHCARE_NURSE,
             "department_id": 2,
+            "role_id" : DepartmentRoleType["HEALTHCARE_NURSE"].value,
             "employee_id": "EMP005",
             "is_active": True
         },
@@ -216,6 +233,7 @@ def seed_employee_user(db: Session):
             "role": RoleType.EMPLOYEE,
             "department_role": DepartmentRoleType.HEALTHCARE_ADMIN,
             "department_id": 2,
+            "role_id" : DepartmentRoleType["HEALTHCARE_ADMIN"].value,
             "employee_id": "EMP006",
             "is_active": True
         }
@@ -239,6 +257,55 @@ def seed_employee_user(db: Session):
  
         finally:
             db.close()
+            
+def seed_roles(db: Session):
+    roles = [
+        (1, "USPS_MAIL_CARRIER", "Postal worker responsible for mail and parcel delivery"),
+        (2, "USPS_OFFICE_ADMIN", "Administrative staff in USPS office"),
+        (3, "USPS_SUPERVISOR", "Supervisor in USPS department"),
+        (4, "HEALTHCARE_NURSE", "Registered Nurse"),
+        (5, "HEALTHCARE_ADMIN", "Healthcare administrative staff"),
+        (6, "HEALTHCARE_SUPERVISOR", "Healthcare department supervisor"),
+        (7, "TRANSPORTATION_DRIVER", "Vehicle driver"),
+        (8, "TRANSPORTATION_DISPATCHER", "Transportation logistics coordinator"),
+        (9, "IT_SUPPORT_TECHNICIAN", "IT support and maintenance staff"),
+        (10, "FINANCE_ANALYST", "Financial analysis and reporting")
+    ]
+
+    for role_id, role_name, role_desc in roles:
+        existing = db.query(EmployeeRole).filter_by(role_id=role_id).first()
+        if not existing:
+            db.add(EmployeeRole(role_id=role_id, role_name=role_name, role_description=role_desc))
+            print(f"✅ Seeded role: {role_name}")
+        else:
+            print(f"⚠️ Role already exists: {role_name}")
+    
+    db.commit()
+
+
+def seed_metric_definition_roles(db: Session):
+    # Mapping of (department_id, role_id) -> applicable metric_ids
+    role_metric_mappings = {
+        (1, 1): [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+        (1, 2): [9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+        (2, 4): [21, 22, 23, 18, 27, 29, 30, 9, 10, 11, 12, 31, 32],
+        (2, 5): [18, 19, 20, 24, 25, 26, 27, 33, 34, 35, 9, 10, 11, 12]
+    }
+
+    for (dept_id, role_id), metric_ids in role_metric_mappings.items():
+        for metric_id in metric_ids:
+            db.execute(text("""
+                INSERT INTO metric_definition_roles (metric_id, role_id)
+                SELECT :metric_id, :role_id
+                WHERE NOT EXISTS (
+                    SELECT 1 FROM metric_definition_roles
+                    WHERE metric_id = :metric_id AND role_id = :role_id
+                )
+            """), {"metric_id": metric_id, "role_id": role_id})
+            print(f"✔️ Mapped metric {metric_id} to role {role_id}")
+
+    db.commit()
+    print("✅ Role-metric mapping complete.")
 
 
 if __name__ == "__main__":

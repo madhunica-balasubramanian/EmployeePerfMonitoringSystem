@@ -4,7 +4,7 @@ from app.models.models import User, RoleType
 from app.auth.deps import get_current_user
 
 router = APIRouter(prefix="/api/v1/profile", tags=["profile"])
-
+#DEMO-TESTED
 class UserProfileResponse(BaseModel):
     email: str
     first_name: str
