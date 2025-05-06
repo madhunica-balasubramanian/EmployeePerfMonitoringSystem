@@ -6,13 +6,9 @@ In a simple effort to address the lack of appropriate performance evaluation for
 
 Technologies Used
 
-<<<<<<< HEAD
 Backend – Python fastAPI framework 
-=======
-Backend – Python + FastAPI framework
->>>>>>> origin/frontend-vignesh-1
 
-FrontEnd – Materials UI / React 
+FrontEnd – tailWind CSS, TypeScript , React 
 
 DB – PostGRESQL 
 
@@ -26,6 +22,48 @@ https://github.com/madhunica-balasubramanian/EmployeePerfMonitoringSystem/tree/d
 Feature branches will be created from the development branch and complete end-end working functionality will only be moved to development branch.
 This contains basic user login (user - employee, supervisor or admin) Each can view their respective dashboards.
 https://github.com/madhunica-balasubramanian/EmployeePerfMonitoringSystem/tree/InitialSetupFE-BE Links to an external site.
+
+Running your Backend
+
+python -m venv venv
+source venv/bin/activate
+export SECRET_KEY=””
+uvicorn app.main:app --reload
+run main.py
+
+Running your frontend
+
+cd frontend/
+npm install 
+npm run dev 
+Note:: Dont modify package.json
+
+If you run into any dependencies, follow these steps
+rm package-lock.json , rm -rf node_modules 
+npm cache clean --force
+npm install
+npm run dev
+
+npm list
+
+frontend@0.1.0 /<< >>/PROJECT/EmployeePerfMonitoringSystem/frontend-perf-wellness-sys
+├── @types/node@20.17.38
+├── @types/react-dom@19.1.3
+├── @types/react@19.1.2
+├── autoprefixer@10.4.21
+├── axios@1.9.0
+├── clsx@2.1.1
+├── date-fns@4.1.0
+├── lucide-react@0.507.0
+├── next-themes@0.4.6
+├── next@15.3.1
+├── postcss@8.5.3
+├── react-dom@19.1.0
+├── react@19.1.0
+├── tailwind-merge@3.2.0
+├── tailwindcss-animate@1.0.7
+├── tailwindcss@3.4.3
+└── typescript@5.8.3
 
 
 Detailed Description and UseCases
@@ -55,15 +93,6 @@ Burnout risk (based on hours worked, breaks taken)
 Self-assessment surveys
 Sleep & stress tracking (manual input or wearables integration)
 
-**Transportation (e.g., Federal Aviation Administration, DOT)**
- **Performance Metrics**
-Project milestone completions
-Timely maintenance checks
-Incident-free days
- **Wellness Metrics**
-Sleep tracking for drivers/operators
-Fatigue risk index
-Shift durations
 
 https://docs.google.com/document/d/e/2PACX-1vRegqZOl3i0YTdlZSqvOnCUrabUzu6uWfJ6G-TUSGkxZGvjuMyFjvSWoI4mltDJZMpx4qEXxivOGlK5/pub  
 
