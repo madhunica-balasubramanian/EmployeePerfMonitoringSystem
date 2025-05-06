@@ -113,3 +113,49 @@ VALUES
 ('Sleep Tracking', 'Hours of sleep per night for operators', 'wellness', 'float', 'hours', 3),
 ('Fatigue Risk', 'Fatigue risk index score', 'wellness', 'float', 'score', 3),
 ('Shift Duration', 'Duration of work shifts', 'wellness', 'float', 'hours', 3);
+
+-- Insert Employee Roles
+INSERT INTO employee_roles (role_name, role_description) VALUES
+-- USPS Roles
+('USPS_MAIL_CARRIER', 'Postal worker responsible for mail and parcel delivery'),
+('USPS_OFFICE_ADMIN', 'Administrative staff in USPS office'),
+('USPS_SUPERVISOR', 'Supervisor in USPS department'),
+
+-- Healthcare Roles
+('HEALTHCARE_NURSE', 'Registered Nurse'),
+('HEALTHCARE_ADMIN', 'Healthcare administrative staff'),
+('HEALTHCARE_SUPERVISOR', 'Healthcare department supervisor'),
+
+-- Transportation Roles
+('TRANSPORTATION_DRIVER', 'Vehicle driver'),
+('TRANSPORTATION_DISPATCHER', 'Transportation logistics coordinator'),
+
+-- Other Roles
+('IT_SUPPORT_TECHNICIAN', 'IT support and maintenance staff'),
+('FINANCE_ANALYST', 'Financial analysis and reporting');
+
+-- Insert Metric Definition Roles for USPS Metrics
+INSERT INTO metric_definition_roles (metric_id, role_id)
+SELECT 
+    md.id, 
+    er.role_id
+FROM 
+    metric_definitions md
+CROSS JOIN 
+    employee_roles er
+WHERE 
+    md.department_id = 1 
+    AND er.role_name IN ('USPS_MAIL_CARRIER','USPS_OFFICE_ADMIN')
+
+INSERT INTO metric_definition_roles (metric_id, role_id)
+SELECT 
+    md.id, 
+    er.role_id
+FROM 
+    metric_definitions md
+CROSS JOIN 
+    employee_roles er
+WHERE 
+    md.department_id = 2 
+    AND er.role_name IN ('HEALTHCARE_NURSE','HEALTHCARE_ADMIN')
+

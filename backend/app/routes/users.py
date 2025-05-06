@@ -45,6 +45,15 @@ class UserCreate(UserBase):
 
 class UserResponse(UserBase):
     id: int
+    username: str
+    email: str
+    first_name: Optional[str]
+    last_name: Optional[str]
+    employee_id: Optional[str]
+    role: str
+    department_role: str
+    is_active: Optional[bool]
+    department: Optional[DepartmentResponse]  # ✅ Nested department info
     created_at: Optional[datetime] = None
 
     class Config:
