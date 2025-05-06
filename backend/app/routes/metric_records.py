@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import Date
 from datetime import datetime, timezone, date
-from typing import Optional
+from typing import List, Optional
 from pydantic import model_validator
 
 from pydantic import BaseModel
@@ -10,6 +10,9 @@ from app.models.base import get_db
 from app.models.models import MetricTypeEnum, User, RoleType, MetricDefinition, MetricRecord
 from app.models.models import MetricDefinitionRole, EmployeeRole
 from app.auth.deps import get_current_user, get_current_user_role
+from collections import defaultdict
+from sqlalchemy import extract, cast
+from fastapi import Query
 
 
 
@@ -62,6 +65,48 @@ class MetricDefinitionResponse(BaseModel):
     metric_name: str
     metric_type: MetricTypeEnum
     unit: str | None = None
+
+    class Config:
+        orm_mode = True
+        
+class EmployeeMetricResponse(BaseModel):
+    metric_name: str
+    metric_type: str
+    value_numeric: Optional[float]
+    value_text: Optional[str]
+    recorded_at: date
+
+    class Config:
+        orm_mode = True
+        
+class EmployeeSearchResponse(BaseModel):
+    employee_id: str
+    full_name: str
+    email: str
+    department_id: int
+    performance_metrics: List[EmployeeMetricResponse]
+    wellness_metrics: List[EmployeeMetricResponse]
+
+    class Config:
+        orm_mode = True
+        
+class EmployeeMetricWithDate(BaseModel):
+    metric_id: int
+    metric_name: str
+    metric_type: str
+    value_numeric: Optional[float]
+    value_text: Optional[str]
+    recorded_at: date
+    unit: Optional[str]
+
+    class Config:
+        orm_mode = True
+
+class EmployeeWithMetrics(BaseModel):
+    employee_id: str
+    first_name: str
+    last_name: str
+    metrics: List[EmployeeMetricWithDate]
 
     class Config:
         orm_mode = True
@@ -275,7 +320,136 @@ def view_employee_metrics(
 
     return records
 
+@router.get("/employee/search-by-id/{employee_id}", response_model=EmployeeSearchResponse)
+def search_employee_by_id(
+    employee_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    role: RoleType = Depends(get_current_user_role)):
+    if role != RoleType.SUPERVISOR:
+        raise HTTPException(status_code=403, detail="Only supervisors can search for employees.")
 
+    employee = db.query(User).filter(User.employee_id == employee_id).first()
+
+    if not employee:
+        raise HTTPException(status_code=404, detail="Employee not found.")
+
+    if employee.department_id != current_user.department_id:
+        raise HTTPException(status_code=403, detail="You can only view employees in your department.")
+
+    # Fetch recent performance and wellness metrics
+    records = db.query(MetricRecord, MetricDefinition).join(MetricDefinition).filter(
+        MetricRecord.user_id == employee.id
+    ).all()
+
+    performance_metrics = []
+    wellness_metrics = []
+
+    for record, definition in records:
+        entry = EmployeeMetricResponse(
+            metric_name=definition.metric_name,
+            metric_type=record.metric_type,
+            value_numeric=record.value_numeric,
+            value_text=record.value_text,
+            recorded_at=record.recorded_at.date()
+        )
+        if record.metric_type.upper() == "PERFORMANCE":
+            performance_metrics.append(entry)
+        elif record.metric_type.upper() == "WELLNESS":
+            wellness_metrics.append(entry)
+
+    return EmployeeSearchResponse(
+        employee_id=employee.employee_id,
+        full_name=f"{employee.first_name} {employee.last_name}",
+        email=employee.email,
+        department_id=employee.department_id,
+        performance_metrics=performance_metrics,
+        wellness_metrics=wellness_metrics
+    )
+    
+# Supervisor can list all the employees of his department - based on date range 
+@router.get("/department/employee-metrics", response_model=List[EmployeeWithMetrics])
+def get_department_employee_metrics(
+    start_date: Optional[date] = Query(None),
+    end_date: Optional[date] = Query(None),
+    month: Optional[int] = Query(None),
+    year: Optional[int] = Query(None),
+    metric_type: Optional[str] = Query(None),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    role: RoleType = Depends(get_current_user_role)):
+    if role != RoleType.SUPERVISOR:
+        raise HTTPException(status_code=403, detail="Only supervisors can access this data.")
+
+    # Get employees in the supervisor’s department
+    employees = db.query(User).filter(
+        User.department_id == current_user.department_id,
+        User.role == RoleType.EMPLOYEE
+    ).all()
+
+    if not employees:
+        return []
+
+    employee_ids = [e.id for e in employees]
+    employee_lookup = {e.id: e for e in employees}
+
+    # Build query
+    query = db.query(
+        MetricRecord.user_id,
+        MetricRecord.metric_id,
+        MetricDefinition.metric_name,
+        MetricRecord.metric_type,
+        MetricRecord.value_numeric,
+        MetricRecord.value_text,
+        MetricRecord.recorded_at,
+        MetricDefinition.unit
+    ).join(
+        MetricDefinition, MetricRecord.metric_id == MetricDefinition.id
+    ).filter(
+        MetricRecord.user_id.in_(employee_ids)
+    )
+
+    # Apply filters
+    if start_date:
+        query = query.filter(cast(MetricRecord.recorded_at, Date) >= start_date)
+    if end_date:
+        query = query.filter(cast(MetricRecord.recorded_at, Date) <= end_date)
+    if month:
+        query = query.filter(extract("month", MetricRecord.recorded_at) == month)
+    if year:
+        query = query.filter(extract("year", MetricRecord.recorded_at) == year)
+    if metric_type:
+        query = query.filter(MetricRecord.metric_type == metric_type.upper())
+
+    # Run query
+    records = query.order_by(MetricRecord.recorded_at.desc()).all()
+
+    # Group results by employee
+    from collections import defaultdict
+    result = defaultdict(list)
+    for r in records:
+        result[r.user_id].append(EmployeeMetricWithDate(
+            metric_id=r.metric_id,
+            metric_name=r.metric_name,
+            metric_type=r.metric_type,
+            value_numeric=r.value_numeric,
+            value_text=r.value_text,
+            recorded_at=r.recorded_at.date(), 
+            unit=r.unit
+        ))
+
+    # Build final response
+    response = []
+    for user_id, metrics in result.items():
+        emp = employee_lookup[user_id]
+        response.append(EmployeeWithMetrics(
+            employee_id=emp.employee_id,
+            first_name=emp.first_name,
+            last_name=emp.last_name,
+            metrics=metrics
+        ))
+
+    return response
 
 
 
