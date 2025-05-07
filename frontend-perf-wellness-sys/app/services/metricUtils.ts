@@ -1,5 +1,84 @@
 // utils/metricUtils.ts
 
+export const checkboxValueMappings: Record<string, Record<string, number>> = {
+  "injury reports": {
+    "Reported to Supervisor": 3,
+    "First Aid Given": 2,
+    "Doctor Visit": 1,
+  },
+  "physical strain reports": {
+    "Reported to Supervisor": 3,
+    "First Aid Given": 2,
+    "Doctor Visit": 1,
+  },
+  "sick days": {
+    "Remote Work": 3,
+    "Called In": 2,
+    "Medical Certificate": 1,
+  }
+};
+
+export const radioValueMappings: Record<string, Record<string, number>> = {
+  "injury report": {
+    "None": 4,
+    "Minor": 3,
+    "Moderate": 2,
+    "Severe": 1,
+  },
+  "weather exposure": {
+    "None": 4,
+    "Cold": 3,
+    "Heat": 2,
+    "Rain": 1,
+  }
+};
+
+export const dropdownValueMappings: Record<string, Record<string, number>> = {
+  "stress level": {
+    "Low": 1,
+    "Medium": 2,
+    "High": 3,
+  },
+  "energy level": {
+    "Low": 1,
+    "Medium": 2,
+    "High": 3,
+  },
+  "work-life balance": {
+    "Sad": 1,
+    "Stressed": 2,
+    "Neutral": 3,
+    "Happy": 4,
+    "Energetic": 5,
+  },
+  "your work life balance": {
+    "Sad": 1,
+    "Stressed": 2,
+    "Neutral": 3,
+    "Happy": 4,
+    "Energetic": 5,
+  },
+  "job satisfaction": {
+    "Very Dissatisfied": 1,
+    "Dissatisfied": 2,
+    "Neutral": 3,
+    "Satisfied": 4,
+    "Very Satisfied": 5,
+  },
+  "your job satisfaction": {
+    "Very Dissatisfied": 1,
+    "Dissatisfied": 2,
+    "Neutral": 3,
+    "Satisfied": 4,
+    "Very Satisfied": 5,
+  },
+  "Call Response Time": {
+    "Worse": 1,
+    "Bad": 2,
+    "Good": 3,
+  }
+};
+
 export const DROPDOWN_OPTIONS = {
     "stress level": ["Low", "Medium", "High"],
     "work-life balance": ["Happy", "Neutral", "Sad", "Stressed", "Energetic"],
@@ -48,4 +127,32 @@ export const getMetricType = (metricName: string): 'numeric' | 'dropdown' | 'rad
   
     return 'text';
   };
+
+
+  export function mapTextToNumericValue(metricName: string, value: string): number {
+    const name = metricName.toLowerCase();
+  
+    const findMapping = (
+      mappings: Record<string, Record<string, number>>
+    ): number | undefined => {
+      const match = Object.entries(mappings).find(([key]) => name.includes(key.toLowerCase()));
+      return match?.[1][value];
+    };
+  
+    // Try dropdowns first
+    let numeric = findMapping(dropdownValueMappings);
+    if (numeric !== undefined) return numeric;
+  
+    // Then radio buttons
+    numeric = findMapping(radioValueMappings);
+    if (numeric !== undefined) return numeric;
+  
+    // Then checkbox options
+    numeric = findMapping(checkboxValueMappings);
+    if (numeric !== undefined) return numeric;
+  
+    // Fallback
+    return 0; // or throw an error, or return NaN
+  }
+  
   

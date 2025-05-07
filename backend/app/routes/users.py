@@ -11,6 +11,7 @@ from app.auth.deps import get_current_user_role, get_current_user
 from app.auth.deps import is_admin, is_supervisor
 from app.utils.security import get_password_hash
 from app.routes.departments import DepartmentCreate, DepartmentResponse
+from sqlalchemy import and_, or_
 
 router = APIRouter(prefix="/api/v1/users", tags=["users"])
 
@@ -328,6 +329,65 @@ def update_employee(
     db.commit()
     db.refresh(employee)
     return employee
+
+# Get a single employee profile by employee_id
+@router.get("/employees/{employee_id}", response_model=UserResponse, status_code=status.HTTP_200_OK)
+def get_employee_profile(
+    employee_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    # Check if the current user is a supervisor
+    if current_user.role != RoleType.SUPERVISOR:
+        raise HTTPException(status_code=403, detail="Only supervisors can view detailed employee profiles.")
+    
+    # Get the employee
+    employee = db.query(User).filter(
+    and_(
+        User.employee_id == employee_id,  # Filter by string employee_id (e.g., "EMP007")
+        User.role == RoleType.EMPLOYEE     # Only get users with EMPLOYEE role
+    )
+    ).first()
+
+    if not employee:
+        raise HTTPException(status_code=404, detail="Employee not found")
+    
+    # Check if the employee is in the supervisor's department
+    if employee.department_id != current_user.department_id:
+        raise HTTPException(status_code=403, detail="Supervisors can only view employees in their own department.")
+    
+    # Return the employee profile
+    return employee
+
+# Get all employees in supervisor's department
+@router.get("/employees", response_model=List[UserResponse], status_code=status.HTTP_200_OK)
+def get_department_employees(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    department_role: Optional[str] = None,
+    is_active: Optional[bool] = None
+):
+    # Check if the current user is a supervisor
+    if current_user.role != RoleType.SUPERVISOR:
+        raise HTTPException(status_code=403, detail="Only supervisors can view department employees.")
+    
+    # Query for employees in the supervisor's department
+    query = db.query(User).filter(
+        User.role == RoleType.EMPLOYEE,
+        User.department_id == current_user.department_id
+    )
+    
+    # Apply filters if provided
+    if department_role:
+        query = query.filter(User.department_role == department_role)
+    
+    if is_active is not None:
+        query = query.filter(User.is_active == is_active)
+    
+    # Execute the query and get results
+    employees = query.all()
+    
+    return employees
 
 @router.delete("/delete_employee/{employee_id}", status_code=status.HTTP_200_OK)
 def delete_employee(

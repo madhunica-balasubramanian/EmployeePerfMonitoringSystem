@@ -33,22 +33,6 @@ export default function SupervisorDashboard() {
               <span>Dashboard</span>
             </Link>
             <Link 
-              href="/supervisor/employees" 
-              className={`flex items-center gap-3 px-4 py-3 rounded-md ${activeTab === 'employees' ? 'bg-teal-50 text-teal-600' : 'text-gray-700 hover:bg-gray-100'}`}
-              onClick={() => setActiveTab('employees')}
-            >
-              <Users size={18} />
-              <span>Employees</span>
-            </Link>
-            <Link 
-              href="/supervisor/departments" 
-              className={`flex items-center gap-3 px-4 py-3 rounded-md ${activeTab === 'departments' ? 'bg-teal-50 text-teal-600' : 'text-gray-700 hover:bg-gray-100'}`}
-              onClick={() => setActiveTab('departments')}
-            >
-              <Building size={18} />
-              <span>Departments</span>
-            </Link>
-            <Link 
               href="/supervisor/performance" 
               className={`flex items-center gap-3 px-4 py-3 rounded-md ${activeTab === 'performance' ? 'bg-teal-50 text-teal-600' : 'text-gray-700 hover:bg-gray-100'}`}
               onClick={() => setActiveTab('performance')}
@@ -63,14 +47,6 @@ export default function SupervisorDashboard() {
             >
               <FileText size={18} />
               <span>Wellness Reports</span>
-            </Link>
-            <Link 
-              href="/supervisor/calendar" 
-              className={`flex items-center gap-3 px-4 py-3 rounded-md ${activeTab === 'calendar' ? 'bg-teal-50 text-teal-600' : 'text-gray-700 hover:bg-gray-100'}`}
-              onClick={() => setActiveTab('calendar')}
-            >
-              <Calendar size={18} />
-              <span>Calendar</span>
             </Link>
           </nav>
         </div>
