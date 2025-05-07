@@ -15,6 +15,14 @@ from app.models.models import MetricDefinition, MetricTypeEnum
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine)
+department_role_to_id = {
+    "USPS_SUPERVISOR": 5,
+    "HEALTHCARE_SUPERVISOR": 6,
+    "USPS_MAIL_CARRIER" : 1,
+    "USPS_OFFICE_ADMIN" : 2,
+    "HEALTHCARE_NURSE"  :3,
+    "HEALTHCARE_ADMIN" : 4 }
+    
 
 def init_db():
     Base.metadata.create_all(bind=engine)
@@ -135,6 +143,7 @@ def seed_admin_user(db: Session):
 # remove this function.
 def seed_supervisor_user(db: Session):
     #db: Session = SessionLocal()
+    
     supervisors_to_seed = [
         {
             "username": "jason",
@@ -145,7 +154,7 @@ def seed_supervisor_user(db: Session):
             "role": RoleType.SUPERVISOR,
             "department_role": DepartmentRoleType.USPS_SUPERVISOR,
             "department_id": 1,  # Admin might not be tied to a specific department
-            "role_id" : DepartmentRoleType["USPS_SUPERVISOR"].value,
+            "role_id" : department_role_to_id[DepartmentRoleType["USPS_SUPERVISOR"].value],
             "employee_id": "EMP002",
             "is_active": True
         },
@@ -158,8 +167,8 @@ def seed_supervisor_user(db: Session):
             "role": RoleType.SUPERVISOR,    
             "department_role": DepartmentRoleType.HEALTHCARE_SUPERVISOR,
             "department_id": 2,
-            "role_id" : DepartmentRoleType["HEALTHCARE_SUPERVISOR"].value,
-            "employee_id": "EMP008",
+            "role_id" : department_role_to_id[DepartmentRoleType["HEALTHCARE_SUPERVISOR"].value],
+            "employee_id": "EMP003",
             "is_active": True
         }
     ]
@@ -194,7 +203,7 @@ def seed_employee_user(db: Session):
             "role": RoleType.EMPLOYEE,
             "department_role": DepartmentRoleType.USPS_MAIL_CARRIER,
             "department_id": 1,
-            "role_id" : DepartmentRoleType["USPS_MAIL_CARRIER"].value,
+            "role_id" : department_role_to_id[DepartmentRoleType["USPS_MAIL_CARRIER"].value],
             "employee_id": "EMP004",
             "is_active": True
         },
@@ -207,8 +216,8 @@ def seed_employee_user(db: Session):
             "role": RoleType.EMPLOYEE,
             "department_role": DepartmentRoleType.USPS_OFFICE_ADMIN,
             "department_id": 1,
-            "role_id" : DepartmentRoleType["USPS_OFFICE_ADMIN"].value,
-            "employee_id": "EMP007",
+            "role_id" : department_role_to_id[DepartmentRoleType["USPS_OFFICE_ADMIN"].value],
+            "employee_id": "EMP005",
             "is_active": True
         },
         {
@@ -220,8 +229,8 @@ def seed_employee_user(db: Session):
             "role": RoleType.EMPLOYEE,
             "department_role": DepartmentRoleType.HEALTHCARE_NURSE,
             "department_id": 2,
-            "role_id" : DepartmentRoleType["HEALTHCARE_NURSE"].value,
-            "employee_id": "EMP005",
+            "role_id" : department_role_to_id[DepartmentRoleType["HEALTHCARE_NURSE"].value],
+            "employee_id": "EMP006",
             "is_active": True
         },
         {
@@ -233,10 +242,51 @@ def seed_employee_user(db: Session):
             "role": RoleType.EMPLOYEE,
             "department_role": DepartmentRoleType.HEALTHCARE_ADMIN,
             "department_id": 2,
-            "role_id" : DepartmentRoleType["HEALTHCARE_ADMIN"].value,
-            "employee_id": "EMP006",
+            "role_id" : department_role_to_id[DepartmentRoleType["HEALTHCARE_ADMIN"].value],
+            "employee_id": "EMP007",
             "is_active": True
-        }
+        },
+        
+        {
+            "username": "richard",
+            "email": "richardr@example.com",
+            "hashed_password": get_password_hash("richard123"),
+            "first_name": "Richard",
+            "last_name": "C",
+            "role": RoleType.EMPLOYEE,
+            "department_role": DepartmentRoleType.USPS_OFFICE_ADMIN,
+            "department_id": 1,
+            "role_id" : department_role_to_id[DepartmentRoleType["USPS_OFFICE_ADMIN"].value],
+            "employee_id": "EMP018",
+            "is_active": True
+        },
+        {
+            "username": "Gary",
+            "email": "gary@example.com",
+            "hashed_password": get_password_hash("gary123"),
+            "first_name": "Gary",
+            "last_name": "Perl",
+            "role": RoleType.EMPLOYEE,
+            "department_role": DepartmentRoleType.USPS_MAIL_CARRIER,
+            "department_id": 1,
+            "role_id" : department_role_to_id[DepartmentRoleType["USPS_MAIL_CARRIER"].value],
+            "employee_id": "EMP019",
+            "is_active": True
+        },
+        {
+            "username": "Tom",
+            "email": "tom@example.com",
+            "hashed_password": get_password_hash("tom123"),
+            "first_name": "Tom",
+            "last_name": "Perl",
+            "role": RoleType.EMPLOYEE,
+            "department_role": DepartmentRoleType.HEALTHCARE_ADMIN,
+            "department_id": 2,
+            "role_id" : department_role_to_id[DepartmentRoleType["HEALTHCARE_ADMIN"].value],
+            "employee_id": "EMP010",
+            "is_active": True
+        },
+        
     ]
     for employee in employees_to_seed:
         try:
@@ -262,9 +312,9 @@ def seed_roles(db: Session):
     roles = [
         (1, "USPS_MAIL_CARRIER", "Postal worker responsible for mail and parcel delivery"),
         (2, "USPS_OFFICE_ADMIN", "Administrative staff in USPS office"),
-        (3, "USPS_SUPERVISOR", "Supervisor in USPS department"),
-        (4, "HEALTHCARE_NURSE", "Registered Nurse"),
-        (5, "HEALTHCARE_ADMIN", "Healthcare administrative staff"),
+        (3, "HEALTHCARE_NURSE", "Registered Nurse"),
+        (4, "HEALTHCARE_ADMIN", "Healthcare administrative staff"),
+        (5, "USPS_SUPERVISOR", "Supervisor in USPS department"),
         (6, "HEALTHCARE_SUPERVISOR", "Healthcare department supervisor"),
         (7, "TRANSPORTATION_DRIVER", "Vehicle driver"),
         (8, "TRANSPORTATION_DISPATCHER", "Transportation logistics coordinator"),
@@ -288,8 +338,8 @@ def seed_metric_definition_roles(db: Session):
     role_metric_mappings = {
         (1, 1): [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
         (1, 2): [9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
-        (2, 4): [21, 22, 23, 18, 27, 29, 30, 9, 10, 11, 12, 31, 32],
-        (2, 5): [18, 19, 20, 24, 25, 26, 27, 33, 34, 35, 9, 10, 11, 12]
+        (2, 3): [21, 22, 23, 18, 27, 29, 30, 36, 37, 38, 39, 31, 32],
+        (2, 4): [18, 19, 20, 24, 25, 26, 27, 33, 34, 35, 36, 37, 38, 39]
     }
 
     for (dept_id, role_id), metric_ids in role_metric_mappings.items():

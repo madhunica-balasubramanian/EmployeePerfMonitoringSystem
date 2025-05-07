@@ -403,6 +403,56 @@
       "is_aggregated": true,
       "is_numeric": true,
       "value": "0"
-    }    
+    },
+    {
+      "metric_name": "Sick Leave",
+      "metric_description": "Update number of Sick leaves used ",
+      "metric_type": "Wellness",
+      "department_id": 2,
+      "unit": "Count",
+      "metric_formula": null,
+      "metric_formula_description": "Count based on attendance records.",
+      "is_aggregated": true,
+      "is_numeric": true,
+      "value": "0"
+    },
+    {
+      "metric_name": "Rate Your Stress Level",
+      "metric_description": "Self-reported stress level on a scale of 1 to 10.",
+      "metric_type": "Wellness",
+      "department_id": 2,
+      "unit": "Score",
+      "metric_formula": null,
+      "metric_formula_description": "Self-reported measure.",
+      "is_aggregated": false,
+      "is_numeric": true,
+      "value": "0"
+    }
+    ,
+    {
+      "metric_name": "Your Work Life Balance",
+      "metric_description": "Self-reported work-life balance on a scale of 1 to 10.",
+      "metric_type": "Wellness",
+      "department_id": 2,
+      "unit": "Score",
+      "metric_formula": null,
+      "metric_formula_description": "Self-reported measure.",
+      "is_aggregated": false,
+      "is_numeric": true,
+      "value": "0"
+    }
+    ,
+    {
+      "metric_name": "Your Job Satisfaction",
+      "metric_description": "Self-reported job satisfaction on a scale of 1 to 10.",
+      "metric_type": "Wellness",
+      "department_id": 2,
+      "unit": "Score",
+      "metric_formula": null,
+      "metric_formula_description": "Self-reported measure.",
+      "is_aggregated": false,
+      "is_numeric": true,
+      "value": "0"
+    }
   ]
   

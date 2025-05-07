@@ -7,21 +7,10 @@ import Link from "next/link";
 import { useAuth } from "../../contexts/AuthContext";
 import ProtectedRoute from "../../components/ProtectedRoute";
 import MetricService, { Metric, MetricSubmission } from "../../services/metric.service";
+import EmployeeSidebar from "../../components/EmployeeSidebar";
+import { DROPDOWN_OPTIONS, CHECKBOX_METRICS, RADIO_METRICS, RADIO_OPTIONS, CHECKBOX_OPTIONS, NUMERIC_METRICS } from "../../services/metricUtils";
 
-// Define dropdown options for specific metric types
-const DROPDOWN_OPTIONS = {
-  "stress level": ["Low", "Medium", "High"],
-  "work-life balance": ["Happy", "Neutral", "Sad", "Stressed", "Energetic"],
-  "job satisfaction": ["Very Satisfied", "Satisfied", "Neutral", "Dissatisfied", "Very Dissatisfied"],
-  "energy level": ["Low", "Medium", "High"],
-  "Call Response Time": ["Good", "Bad", "Worse"]
-};
-
-// Define metrics that should use checkboxes (boolean values)
-const CHECKBOX_METRICS = ["completed_training", "exercise_completed", "medication_taken"];
-
-// Define which metrics should use numeric input
-const NUMERIC_METRICS = ["sleep_hours", "water_intake", "steps_count"];
+const TEXT_INPUT_METRICS = [""];
 
 export default function WellnessDataPage() {
   const [activeTab, setActiveTab] = useState("wellness");
@@ -61,8 +50,11 @@ export default function WellnessDataPage() {
   const getInputType = (metric: Metric) => {
     // Determine input type based on metric properties
     const metricName = metric.metric_name.toLowerCase();
-    console.log("trying to match metric name to input type ")
+
+    console.log("trying to match metric name to input type ",metricName);
     console.log("All dropdown options:", DROPDOWN_OPTIONS);
+    console.log ("All checkbox options", CHECKBOX_METRICS);
+    console.log ("All radio options", RADIO_METRICS);
     // If it's in the dropdown options map
     if (Object.keys(DROPDOWN_OPTIONS).some(key => {
       const match = metricName.includes(key);
@@ -72,11 +64,23 @@ export default function WellnessDataPage() {
       console.log("✅ Matched a dropdown option for:", metricName);
       return "dropdown";
     }
-    
-    // If it's a checkbox metric
-    if (CHECKBOX_METRICS.some(name => metricName.includes(name))) {
-      return "checkbox";
+    // Checkbox
+    if (CHECKBOX_METRICS.some(name => metricName.includes(name.toLowerCase()))) {
+      console.log(`[TYPE DETECT] "${metricName}" → checkbox`);
+      return 'checkbox';
     }
+     // Radio
+    if (RADIO_METRICS.some(name => metricName.includes(name.toLowerCase()))) {
+      console.log(`[TYPE DETECT] "${metricName}" → radio`);
+      return 'radio';
+    }
+
+    // Text input
+    if (TEXT_INPUT_METRICS.some(name => metricName.includes(name.toLowerCase()))) {
+      console.log(`[TYPE DETECT] "${metricName}" → text`);
+      return 'text';
+    }
+
     
     // If it's numeric
     if (NUMERIC_METRICS.some(name => metricName.includes(name)) || 
@@ -85,7 +89,10 @@ export default function WellnessDataPage() {
     }
     
     // Default to text
-    return "text";
+    // Fallback to number input
+  console.log(`[TYPE DETECT] "${metricName}" → number (default)`);
+    return 'number';
+    //return "text";
   };
   
   const getDropdownOptions = (metric: Metric) => {
@@ -100,6 +107,31 @@ export default function WellnessDataPage() {
     
     return [];
   };
+
+  const getRadioOptions = (metric: Metric): string[] => {
+    const metricName = metric.metric_name.toLowerCase();
+  
+    for (const [key, options] of Object.entries(RADIO_OPTIONS)) {
+      if (metricName.includes(key.toLowerCase())) {
+        return options;
+      }
+    }
+  
+    return [];
+  };
+
+  const getCheckboxOptions = (metric: Metric): string[] => {
+    const metricName = metric.metric_name.toLowerCase();
+  
+    for (const [key, options] of Object.entries(CHECKBOX_OPTIONS)) {
+      if (metricName.includes(key.toLowerCase())) {
+        return options;
+      }
+    }
+  
+    return [];
+  };
+  
 
   const handleMetricChange = (metricId: number, value: any) => {
     // Clear error for this metric
@@ -210,15 +242,14 @@ export default function WellnessDataPage() {
     }
   };
 
-  // Render different input types based on the metric
   const renderInput = (metric: Metric) => {
-    const inputType = getInputType(metric);
+    const inputType = getInputType(metric); // e.g., "dropdown", "checkbox", "radio", etc.
     const metricId = metric.id;
     const value = metricValues[metricId];
     const error = errors[metricId];
-    
+  
     switch (inputType) {
-      case "dropdown":
+      case "dropdown": {
         const options = getDropdownOptions(metric);
         return (
           <div>
@@ -236,23 +267,78 @@ export default function WellnessDataPage() {
             {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
           </div>
         );
-        
-      case "checkbox":
+      }
+  
+      case "checkbox": {
+        const options = getCheckboxOptions(metric);
+        if (options.length > 0) {
+          // Multi-checkbox group
+          return (
+            <div className="space-y-2">
+              {options.map((option, index) => (
+                <label key={index} className="flex items-center space-x-2 text-gray-700">
+                  <input
+                    type="checkbox"
+                    checked={Array.isArray(value) ? value.includes(option) : false}
+                    onChange={(e) => {
+                      const newValue = Array.isArray(value) ? [...value] : [];
+                      if (e.target.checked) {
+                        newValue.push(option);
+                      } else {
+                        const i = newValue.indexOf(option);
+                        if (i > -1) newValue.splice(i, 1);
+                      }
+                      handleMetricChange(metricId, newValue);
+                    }}
+                    className="w-5 h-5 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+                  />
+                  <span>{option}</span>
+                </label>
+              ))}
+              {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+            </div>
+          );
+        } else {
+          // Single boolean checkbox
+          return (
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id={`metric-${metricId}`}
+                checked={value === true}
+                onChange={(e) => handleMetricChange(metricId, e.target.checked)}
+                className="w-5 h-5 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
+              />
+              <label htmlFor={`metric-${metricId}`} className="ml-2 text-gray-700">
+                {value === true ? 'Yes' : 'No'}
+              </label>
+            </div>
+          );
+        }
+      }
+  
+      case "radio": {
+        const options = getRadioOptions(metric);
         return (
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id={`metric-${metricId}`}
-              checked={value === true}
-              onChange={(e) => handleMetricChange(metricId, e.target.checked)}
-              className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-            />
-            <label htmlFor={`metric-${metricId}`} className="ml-2 text-gray-700">
-              {value === true ? 'Yes' : 'No'}
-            </label>
+          <div className="space-y-2">
+            {options.map((option, index) => (
+              <label key={index} className="flex items-center space-x-2 text-gray-700">
+                <input
+                  type="radio"
+                  name={`metric-${metricId}`}
+                  value={option}
+                  checked={value === option}
+                  onChange={() => handleMetricChange(metricId, option)}
+                  className="w-5 h-5 text-teal-600 border-gray-300 focus:ring-teal-500"
+                />
+                <span>{option}</span>
+              </label>
+            ))}
+            {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
           </div>
         );
-        
+      }
+  
       case "number":
         return (
           <div>
@@ -267,7 +353,8 @@ export default function WellnessDataPage() {
             {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
           </div>
         );
-        
+  
+      case "text":
       default:
         return (
           <div>
@@ -284,6 +371,7 @@ export default function WellnessDataPage() {
         );
     }
   };
+  
 
   return (
     <ProtectedRoute requiredRole="EMPLOYEE">
@@ -294,48 +382,7 @@ export default function WellnessDataPage() {
             <h2 className="text-xl font-semibold text-teal-600">EmpWell System</h2>
             <p className="text-sm text-gray-500">Employee Portal</p>
           </div>
-          <nav className="p-4 space-y-1">
-            <Link 
-              href="/employee/dashboard" 
-              className={`flex items-center gap-3 px-4 py-3 rounded-md ${activeTab === 'overview' ? 'bg-teal-50 text-teal-600' : 'text-gray-700 hover:bg-gray-100'}`}
-              onClick={() => setActiveTab('overview')}
-            >
-              <Home size={18} />
-              <span>Overview</span>
-            </Link>
-            <Link 
-              href="/employee/profile" 
-              className={`flex items-center gap-3 px-4 py-3 rounded-md ${activeTab === 'profile' ? 'bg-teal-50 text-teal-600' : 'text-gray-700 hover:bg-gray-100'}`}
-              onClick={() => setActiveTab('profile')}
-            >
-              <User size={18} />
-              <span>My Profile</span>
-            </Link>
-            <Link 
-              href="/employee/performance" 
-              className={`flex items-center gap-3 px-4 py-3 rounded-md ${activeTab === 'performance' ? 'bg-teal-50 text-teal-600' : 'text-gray-700 hover:bg-gray-100'}`}
-              onClick={() => setActiveTab('performance')}
-            >
-              <BarChart size={18} />
-              <span>Performance Data</span>
-            </Link>
-            <Link 
-              href="/employee/wellness" 
-              className={`flex items-center gap-3 px-4 py-3 rounded-md ${activeTab === 'wellness' ? 'bg-teal-50 text-teal-600' : 'text-gray-700 hover:bg-gray-100'}`}
-              onClick={() => setActiveTab('wellness')}
-            >
-              <FileText size={18} />
-              <span>Wellness Tracking</span>
-            </Link>
-            <Link 
-              href="/employee/calendar" 
-              className={`flex items-center gap-3 px-4 py-3 rounded-md ${activeTab === 'calendar' ? 'bg-teal-50 text-teal-600' : 'text-gray-700 hover:bg-gray-100'}`}
-              onClick={() => setActiveTab('calendar')}
-            >
-              <Calendar size={18} />
-              <span>Calendar</span>
-            </Link>
-          </nav>
+          <EmployeeSidebar />
         </div>
 
         {/* Main Content */}

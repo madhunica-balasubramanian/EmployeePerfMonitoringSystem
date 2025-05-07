@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useAuth } from './contexts/AuthContext';
 import { AuthProvider } from './provider/auth-provider';
 import { useRouter } from "next/navigation";
+import Image from 'next/image';
 
 export default function LoginPage() {
   const { login, error, loading } = useAuth();
@@ -20,27 +21,22 @@ export default function LoginPage() {
     <div className="min-h-screen flex flex-col">
       {/* Header */}
       <header className="bg-white p-4 flex items-center justify-between shadow-sm">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-blue-500 rounded flex items-center justify-center text-white">
-            <span className="text-sm">?</span>
-          </div>
+        <div className="flex items-center gap-3">
+        <img src="/logo.jpeg" alt="EmpWell Logo" className="w-10 h-10" />
           <h1 className="text-teal-600 text-xl font-medium">
             Federal Employee Wellness & Performance Monitoring System
           </h1>
         </div>
         <nav className="flex items-center gap-6">
-          <Link href="/about" className="text-gray-700 hover:text-gray-900">
-            About
-          </Link>
-          <Link href="/features" className="text-gray-700 hover:text-gray-900">
-            Features
-          </Link>
-          <Link href="/contact" className="text-gray-700 hover:text-gray-900">
-            Contact
-          </Link>
-          <button className="rounded-full w-8 h-8 bg-gray-100 flex items-center justify-center">
-            <span className="text-lg">?</span>
-          </button>
+        <a href="/about" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-gray-900">
+          About
+        </a>
+        <a href="/features" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-gray-900">
+          Features
+        </a>
+        <a href="/contact" target="_blank" rel="noopener noreferrer" className="text-gray-700 hover:text-gray-900">
+          Contact
+        </a>
         </nav>
       </header>
 
@@ -50,11 +46,11 @@ export default function LoginPage() {
           {/* Left Side */}
           <div className="w-full md:w-1/2 text-white flex flex-col justify-center mb-8 md:mb-0">
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              Employee Performance & Wellness Monitoring
+              Empowering Teams Through Performance & Wellness Intelligence
             </h2>
             <p className="text-xl mb-8">
-              Track performance metrics, monitor wellness indicators, and
-              support your team's growth and wellbeing.
+            Monitor mission-critical performance metrics and wellness indicators across federal teams.
+            Support a resilient, high-performing public service workforce through data-driven insights.
             </p>
             <div className="space-y-4">
               <button className="bg-white/20 backdrop-blur-sm text-white py-3 px-6 rounded-full flex items-center gap-2 hover:bg-white/30 transition">
@@ -140,15 +136,14 @@ export default function LoginPage() {
                   {loading ? 'Logging in...' : 'Login'}
                 </button>
               </form>
-
               <div className="mt-12 text-center">
-                <p className="text-gray-600">
-                  EmpWell Performance & Wellness System v1.0
-                </p>
-                <p className="text-gray-500 text-sm">
-                  © 2025 EmpWell Technologies
-                </p>
-              </div>
+              <p className="text-gray-600">
+                Empowering Federal Teams with Insightful Wellness & Performance Analytics
+              </p>
+              <p className="text-gray-500 text-sm">
+                  © 2025 EmpWell Systems · Built with care by students at SJSU
+              </p>
+            </div>
             </div>
           </div>
         </div>

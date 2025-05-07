@@ -1,12 +1,15 @@
 // app/employee/dashboard/page.tsx (updated)
 "use client";
 
+import { usePathname } from 'next/navigation';
+
 import { BarChart, Bell, Calendar, FileText, Home, Settings, User } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import ProtectedRoute from "../../components/ProtectedRoute";
 import MetricService, { Metric } from "../../services/metric.service";
+import EmployeeSidebar from "../../components/EmployeeSidebar";
 
 
 export default function EmployeeDashboard() {
@@ -46,56 +49,7 @@ export default function EmployeeDashboard() {
             <h2 className="text-xl font-semibold text-teal-600">EmpWell System</h2>
             <p className="text-sm text-gray-500">Employee Portal</p>
           </div>
-          <nav className="p-4 space-y-1 overflow-auto">
-            <Link 
-              href="/employee/dashboard" 
-              className={`flex items-center gap-3 px-4 py-3 rounded-md ${activeTab === 'overview' ? 'bg-teal-50 text-teal-600' : 'text-gray-700 hover:bg-gray-100'}`}
-              onClick={() => setActiveTab('overview')}
-            >
-              <Home size={18} />
-              <span>Overview</span>
-            </Link>
-            <Link 
-              href="/employee/profile" 
-              className={`flex items-center gap-3 px-4 py-3 rounded-md ${activeTab === 'profile' ? 'bg-teal-50 text-teal-600' : 'text-gray-700 hover:bg-gray-100'}`}
-              onClick={() => setActiveTab('profile')}
-            >
-              <User size={18} />
-              <span>My Profile</span>
-            </Link>
-            <Link 
-              href="/employee/performance" 
-              className={`flex items-center gap-3 px-4 py-3 rounded-md ${activeTab === 'performance' ? 'bg-teal-50 text-teal-600' : 'text-gray-700 hover:bg-gray-100'}`}
-              onClick={() => setActiveTab('performance')}
-            >
-              <BarChart size={18} />
-              <span>Performance Data</span>
-            </Link>
-            <Link 
-              href="/employee/wellness" 
-              className={`flex items-center gap-3 px-4 py-3 rounded-md ${activeTab === 'wellness' ? 'bg-teal-50 text-teal-600' : 'text-gray-700 hover:bg-gray-100'}`}
-              onClick={() => setActiveTab('wellness')}
-            >
-              <FileText size={18} />
-              <span>Wellness Tracking</span>
-            </Link>
-            <Link 
-              href="/employee/history" 
-              className={`flex items-center gap-3 px-4 py-3 rounded-md ${activeTab == 'history' ? 'bg-teal-50 text-teal-600' : 'text-gray-700 hover:bg-gray-100'}`}
-              onClick={() => setActiveTab('history')}
-            >
-              <Calendar size={18} />
-              <span>Metrics History</span>
-            </Link>
-            <Link 
-              href="/employee/calendar" 
-              className={`flex items-center gap-3 px-4 py-3 rounded-md ${activeTab === 'calendar' ? 'bg-teal-50 text-teal-600' : 'text-gray-700 hover:bg-gray-100'}`}
-              onClick={() => setActiveTab('calendar')}
-            >
-              <Calendar size={18} />
-              <span>Calendar</span>
-            </Link>
-          </nav>
+          <EmployeeSidebar />
         </div>
 
         {/* Main Content */}
@@ -167,7 +121,7 @@ export default function EmployeeDashboard() {
                 <div className="mt-4">
                   <Link 
                     href="/employee/wellness" 
-                    className="text-blue-600 font-medium hover:underline"
+                    className="text-teal-600 font-medium hover:underline"
                   >
                     Submit Wellness Data →
                   </Link>
@@ -182,8 +136,13 @@ export default function EmployeeDashboard() {
                       {user?.first_name} {user?.last_name}
                     </h3>
                     <p className="text-gray-500 text-sm mt-1">
-                      Department: {user?.department_id}
-                    </p>
+                  {user?.department_role
+                  ?.toLowerCase()
+                  .split('_')
+                  .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                  .join(' ') || 'Employee'}
+                  </p>
+                    
                   </div>
                   <span className="bg-purple-50 p-2 rounded-md text-purple-600">
                     <User size={20} />
@@ -192,7 +151,7 @@ export default function EmployeeDashboard() {
                 <div className="mt-4">
                   <Link 
                     href="/employee/profile" 
-                    className="text-purple-600 font-medium hover:underline"
+                    className="text-teal-600 font-medium hover:underline"
                   >
                     View Profile →
                   </Link>
@@ -201,60 +160,78 @@ export default function EmployeeDashboard() {
             </div>
 
             {/* Available Metrics */}
-            <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-              <h3 className="text-lg font-semibold mb-4">Your Available Metrics</h3>
-              
-              {loading ? (
-                <div className="flex justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h4 className="font-medium mb-3">Performance Metrics</h4>
-                    {performanceMetrics.length > 0 ? (
-                      <ul className="space-y-2">
-                        {performanceMetrics.slice(0, 5).map((metric) => (
-                          <li key={metric.id} className="p-2 bg-gray-50 rounded flex justify-between">
-                            <span>{metric.metric_name}</span>
-                            <span className="text-gray-500 text-sm">{metric.unit || 'N/A'}</span>
-                          </li>
-                        ))}
-                        {performanceMetrics.length > 5 && (
-                          <li className="text-center text-teal-600 font-medium mt-2">
-                            <Link href="/employee/performance">View all metrics →</Link>
-                          </li>
-                        )}
-                      </ul>
-                    ) : (
-                      <p className="text-gray-500">No performance metrics available</p>
-                    )}
-                  </div>
-                  
-                  <div>
-                    <h4 className="font-medium mb-3">Wellness Metrics</h4>
-                    {wellnessMetrics.length > 0 ? (
-                      <ul className="space-y-2">
-                        {wellnessMetrics.slice(0, 5).map((metric) => (
-                          <li key={metric.id} className="p-2 bg-gray-50 rounded flex justify-between">
-                            <span>{metric.metric_name}</span>
-                            <span className="text-gray-500 text-sm">{metric.unit || 'N/A'}</span>
-                          </li>
-                        ))}
-                        {wellnessMetrics.length > 5 && (
-                          <li className="text-center text-blue-600 font-medium mt-2">
-                            <Link href="/employee/wellness">View all metrics →</Link>
-                          </li>
-                        )}
-                      </ul>
-                    ) : (
-                      <p className="text-gray-500">No wellness metrics available</p>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          </main>
+<div className="bg-white rounded-2xl shadow-md p-6 mb-10">
+  <h3 className="text-2xl font-semibold text-teal-700 mb-6">Your Available Metrics</h3>
+
+  {loading ? (
+    <div className="flex justify-center items-center py-10">
+      <div className="animate-spin rounded-full h-10 w-10 border-4 border-teal-500 border-t-transparent"></div>
+    </div>
+  ) : (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {/* Performance Metrics */}
+      <div>
+        <h4 className="text-lg font-medium text-teal-800 mb-4">Performance Metrics</h4>
+        {performanceMetrics.length > 0 ? (
+          <ul className="space-y-3">
+            {performanceMetrics.slice(0, 5).map((metric) => (
+              <li
+                key={metric.id}
+                className="flex justify-between items-center bg-gray-50 px-4 py-2 rounded-md"
+              >
+                <span className="text-gray-800">{metric.metric_name}</span>
+                <span className="text-gray-500 text-sm">{metric.unit || 'N/A'}</span>
+              </li>
+            ))}
+            {performanceMetrics.length > 5 && (
+            <li className="mt-4 text-center">
+            <Link
+              href="/employee/performance"
+              className="inline-block px-4 py-2 text-sm font-medium text-teal-700 bg-teal-50 rounded-md hover:bg-teal-100 transition-colors"
+            >
+              View All Performance Metrics →
+            </Link>
+          </li>
+          )}
+          </ul>
+        ) : (
+          <p className="text-gray-500 italic">No performance metrics available</p>
+        )}
+      </div>
+
+      {/* Wellness Metrics */}
+      <div>
+        <h4 className="text-lg font-medium text-teal-800 mb-4">Wellness Metrics</h4>
+        {wellnessMetrics.length > 0 ? (
+          <ul className="space-y-3">
+            {wellnessMetrics.slice(0, 5).map((metric) => (
+              <li
+                key={metric.id}
+                className="flex justify-between items-center bg-gray-50 px-4 py-2 rounded-md"
+              >
+                <span className="text-gray-800">{metric.metric_name}</span>
+                <span className="text-gray-500 text-sm">{metric.unit || 'N/A'}</span>
+              </li>
+            ))}
+            {wellnessMetrics.length > 5 && (
+              <li className="text-center mt-3">
+                <Link
+                  href="/employee/wellness"
+                  className="text-teal-600 font-medium hover:underline"
+                >
+                  View all Wellness metrics →
+                </Link>
+              </li>
+            )}
+          </ul>
+        ) : (
+          <p className="text-gray-500 italic">No wellness metrics available</p>
+        )}
+      </div>
+    </div>
+  )}
+</div>
+        </main>
         </div>
       </div>
     </ProtectedRoute>

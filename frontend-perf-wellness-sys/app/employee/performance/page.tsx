@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useAuth } from "../../contexts/AuthContext";
 import ProtectedRoute from "../../components/ProtectedRoute";
 import MetricService, { Metric, MetricSubmission } from "../../services/metric.service";
+import EmployeeSidebar from "../../components/EmployeeSidebar";
 
 export default function PerformanceDataPage() {
   const [activeTab, setActiveTab] = useState("performance");
@@ -117,48 +118,7 @@ export default function PerformanceDataPage() {
             <h2 className="text-xl font-semibold text-teal-600">EmpWell System</h2>
             <p className="text-sm text-gray-500">Employee Portal</p>
           </div>
-          <nav className="p-4 space-y-1">
-            <Link 
-              href="/employee/dashboard" 
-              className={`flex items-center gap-3 px-4 py-3 rounded-md ${activeTab === 'overview' ? 'bg-teal-50 text-teal-600' : 'text-gray-700 hover:bg-gray-100'}`}
-              onClick={() => setActiveTab('overview')}
-            >
-              <Home size={18} />
-              <span>Overview</span>
-            </Link>
-            <Link 
-              href="/employee/profile" 
-              className={`flex items-center gap-3 px-4 py-3 rounded-md ${activeTab === 'profile' ? 'bg-teal-50 text-teal-600' : 'text-gray-700 hover:bg-gray-100'}`}
-              onClick={() => setActiveTab('profile')}
-            >
-              <User size={18} />
-              <span>My Profile</span>
-            </Link>
-            <Link 
-              href="/employee/performance" 
-              className={`flex items-center gap-3 px-4 py-3 rounded-md ${activeTab === 'performance' ? 'bg-teal-50 text-teal-600' : 'text-gray-700 hover:bg-gray-100'}`}
-              onClick={() => setActiveTab('performance')}
-            >
-              <BarChart size={18} />
-              <span>Performance Data</span>
-            </Link>
-            <Link 
-              href="/employee/wellness" 
-              className={`flex items-center gap-3 px-4 py-3 rounded-md ${activeTab === 'wellness' ? 'bg-teal-50 text-teal-600' : 'text-gray-700 hover:bg-gray-100'}`}
-              onClick={() => setActiveTab('wellness')}
-            >
-              <FileText size={18} />
-              <span>Wellness Tracking</span>
-            </Link>
-            <Link 
-              href="/employee/calendar" 
-              className={`flex items-center gap-3 px-4 py-3 rounded-md ${activeTab === 'calendar' ? 'bg-teal-50 text-teal-600' : 'text-gray-700 hover:bg-gray-100'}`}
-              onClick={() => setActiveTab('calendar')}
-            >
-              <Calendar size={18} />
-              <span>Calendar</span>
-            </Link>
-          </nav>
+          <EmployeeSidebar />
         </div>
 
         {/* Main Content */}

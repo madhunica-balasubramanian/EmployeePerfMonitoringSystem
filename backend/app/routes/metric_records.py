@@ -1,19 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
 from sqlalchemy.orm import Session
-from sqlalchemy import Date
-from datetime import datetime, timezone, date
+from sqlalchemy import func, extract, cast, Date, and_
+from datetime import datetime, timezone, date, timedelta 
 from typing import List, Optional
 from pydantic import model_validator
 
 from pydantic import BaseModel
 from app.models.base import get_db
-from app.models.models import MetricTypeEnum, User, RoleType, MetricDefinition, MetricRecord
+from app.models.models import MetricTypeEnum, User, RoleType, MetricDefinition, MetricRecord, Department
 from app.models.models import MetricDefinitionRole, EmployeeRole
 from app.auth.deps import get_current_user, get_current_user_role
 from collections import defaultdict
 from sqlalchemy import extract, cast
 from fastapi import Query
-
 
 
 # Metrics that SUPERVISORS can edit, based on their department
@@ -111,7 +110,40 @@ class EmployeeWithMetrics(BaseModel):
     class Config:
         orm_mode = True
 
+class MetricDetailResponse(BaseModel):
+    id: int
+    metric_id: int
+    metric_name: str
+    value_numeric: Optional[float]
+    value_text: Optional[str]
+    recorded_at: date
+    unit: Optional[str]
 
+    class Config:
+        orm_mode = True
+
+class MonthlyMetricResponse(BaseModel):
+    month: int
+    avg_performance: float
+    avg_wellness: float
+
+    class Config:
+        orm_mode = True
+
+class EmployeeDetailsResponse(BaseModel):
+    employee_id: str
+    first_name: str
+    last_name: str
+    email: str
+    department_role: str
+    department: Optional[str]
+    performance_metrics: List[MetricDetailResponse]
+    wellness_metrics: List[MetricDetailResponse]
+    monthly_metrics: List[MonthlyMetricResponse]
+
+    class Config:
+        orm_mode = True
+        
 @router.get("/employee/available-metrics", response_model=list[MetricDefinitionResponse])
 def get_available_metrics(
     db: Session = Depends(get_db),
@@ -299,7 +331,7 @@ def supervisor_bulk_update_employee_metric(
     db.commit()
     return {"message": "Metrics updated successfully by Supervisor."}
 
-
+# As a supervisor , view employee metrics by employee ID
 @router.get("/employee/{employee_id}/metrics")
 def view_employee_metrics(
     employee_id: int,
@@ -319,6 +351,103 @@ def view_employee_metrics(
     ).all()
 
     return records
+
+
+@router.get("/employee/{employee_id}/details", response_model=EmployeeDetailsResponse)
+def get_employee_details(
+    employee_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+    role: RoleType = Depends(get_current_user_role)):
+    
+    if role != RoleType.SUPERVISOR:
+        raise HTTPException(status_code=403, detail="Only supervisors can access employee details.")
+
+    # Find the employee
+    employee = db.query(User).filter(User.employee_id == employee_id).first()
+
+    if not employee:
+        raise HTTPException(status_code=404, detail="Employee not found.")
+
+    if employee.department_id != current_user.department_id:
+        raise HTTPException(status_code=403, detail="You can only view employees in your department.")
+    
+    # Get metrics for the employee
+    # Get recent metrics (last 30 days)
+    thirty_days_ago = datetime.now(timezone.utc) - timedelta(days=30)
+    
+    metrics_query = db.query(
+        MetricRecord, 
+        MetricDefinition.metric_name,
+        MetricDefinition.unit
+    ).join(
+        MetricDefinition, 
+        MetricRecord.metric_id == MetricDefinition.id
+    ).filter(
+        MetricRecord.user_id == employee.id,
+        MetricRecord.recorded_at >= thirty_days_ago
+    ).order_by(
+        MetricRecord.recorded_at.desc()
+    )
+    
+    performance_metrics = []
+    wellness_metrics = []
+    
+    for record, metric_name, unit in metrics_query:
+        metric_data = {
+            "id": record.id,
+            "metric_id": record.metric_id,
+            "metric_name": metric_name,
+            "value_numeric": record.value_numeric,
+            "value_text": record.value_text,
+            "recorded_at": record.recorded_at.date(),
+            "unit": unit
+        }
+        
+        if record.metric_type.upper() == "PERFORMANCE":
+            performance_metrics.append(metric_data)
+        elif record.metric_type.upper() == "WELLNESS":
+            wellness_metrics.append(metric_data)
+    
+    # Get metrics by month for trend data
+    current_year = datetime.now().year
+    monthly_metrics = []
+    
+    for month in range(1, 13):
+        # Get average performance and wellness for this month
+        month_performance = db.query(func.avg(MetricRecord.value_numeric)).filter(
+            MetricRecord.user_id == employee.id,
+            MetricRecord.metric_type == "PERFORMANCE",
+            extract('month', MetricRecord.recorded_at) == month,
+            extract('year', MetricRecord.recorded_at) == current_year,
+            MetricRecord.value_numeric != None
+        ).scalar() or 0
+        
+        month_wellness = db.query(func.avg(MetricRecord.value_numeric)).filter(
+            MetricRecord.user_id == employee.id,
+            MetricRecord.metric_type == "WELLNESS",
+            extract('month', MetricRecord.recorded_at) == month,
+            extract('year', MetricRecord.recorded_at) == current_year,
+            MetricRecord.value_numeric != None
+        ).scalar() or 0
+        
+        monthly_metrics.append({
+            "month": month,
+            "avg_performance": round(month_performance, 2),
+            "avg_wellness": round(month_wellness, 2)
+        })
+    
+    return {
+        "employee_id": employee.employee_id,
+        "first_name": employee.first_name,
+        "last_name": employee.last_name,
+        "email": employee.email,
+        "department_role": employee.department_role,
+        "department": employee.department.name if employee.department else None,
+        "performance_metrics": performance_metrics,
+        "wellness_metrics": wellness_metrics,
+        "monthly_metrics": monthly_metrics
+    }
 
 @router.get("/employee/search-by-id/{employee_id}", response_model=EmployeeSearchResponse)
 def search_employee_by_id(
@@ -378,6 +507,7 @@ def get_department_employee_metrics(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
     role: RoleType = Depends(get_current_user_role)):
+    print("Current Role_Type is " ,role)
     if role != RoleType.SUPERVISOR:
         raise HTTPException(status_code=403, detail="Only supervisors can access this data.")
 
