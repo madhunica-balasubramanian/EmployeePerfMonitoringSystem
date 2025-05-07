@@ -1,0 +1,304 @@
+app\auth\deps.py:10:1: F811 redefinition of unused 'User' from line 6
+app\auth\deps.py:12:1: E265 block comment should start with '# '
+app\auth\deps.py:16:1: E302 expected 2 blank lines, found 1
+app\auth\deps.py:16:101: E501 line too long (103 > 100 characters)
+app\auth\deps.py:27:43: W291 trailing whitespace
+app\auth\deps.py:28:9: E265 block comment should start with '# '
+app\auth\deps.py:29:13: E116 unexpected indentation (comment)
+app\auth\deps.py:29:13: E265 block comment should start with '# '
+app\auth\deps.py:30:13: E116 unexpected indentation (comment)
+app\auth\deps.py:31:13: E116 unexpected indentation (comment)
+app\auth\deps.py:32:13: E116 unexpected indentation (comment)
+app\auth\deps.py:33:13: E116 unexpected indentation (comment)
+app\auth\deps.py:33:13: E265 block comment should start with '# '
+app\auth\deps.py:48:101: E501 line too long (112 > 100 characters)
+app\auth\deps.py:52:1: E302 expected 2 blank lines, found 1
+app\auth\deps.py:52:101: E501 line too long (107 > 100 characters)
+app\auth\deps.py:64:14: E211 whitespace before '('
+app\auth\deps.py:66:1: W293 blank line contains whitespace
+app\auth\deps.py:67:1: E302 expected 2 blank lines, found 1
+app\auth\deps.py:73:1: E302 expected 2 blank lines, found 1
+app\auth\deps.py:81:1: E302 expected 2 blank lines, found 1
+app\auth\deps.py:89:1: E302 expected 2 blank lines, found 1
+app\auth\deps.py:95:16: W292 no newline at end of file
+app\config.py:17:23: W292 no newline at end of file
+app\database.py:9:76: W292 no newline at end of file
+app\main.py:6:1: E402 module level import not at top of file
+app\main.py:7:1: E402 module level import not at top of file
+app\main.py:7:54: E231 missing whitespace after ','
+app\main.py:8:1: E402 module level import not at top of file
+app\main.py:9:1: E265 block comment should start with '# '
+app\main.py:10:1: F403 'from init_db import *' used; unable to detect undefined names
+app\main.py:10:1: E402 module level import not at top of file
+app\main.py:11:1: F401 'app.models.models.Department' imported but unused
+app\main.py:11:1: E402 module level import not at top of file
+app\main.py:12:1: F401 'app.config.DATABASE_URL' imported but unused
+app\main.py:12:1: E402 module level import not at top of file
+app\main.py:13:1: F401 'sqlalchemy.create_engine' imported but unused
+app\main.py:13:1: E402 module level import not at top of file
+app\main.py:14:1: E402 module level import not at top of file
+app\main.py:15:1: F401 'app.auth.deps.get_current_user' imported but unused
+app\main.py:15:1: E402 module level import not at top of file
+app\main.py:16:1: E402 module level import not at top of file
+app\main.py:18:1: E402 module level import not at top of file
+app\main.py:20:31: F405 'engine' may be undefined, or defined from star imports: init_db
+app\main.py:46:1: E302 expected 2 blank lines, found 1
+app\main.py:52:9: F405 'reset_metric_id_sequence' may be undefined, or defined from star imports: init_db
+app\main.py:53:101: E501 line too long (108 > 100 characters)
+app\main.py:55:9: F405 'seed_departments' may be undefined, or defined from star imports: init_db
+app\main.py:56:9: F405 'seed_roles' may be undefined, or defined from star imports: init_db
+app\main.py:56:23: W291 trailing whitespace
+app\main.py:57:9: F405 'seed_admin_user' may be undefined, or defined from star imports: init_db
+app\main.py:58:9: F405 'seed_supervisor_user' may be undefined, or defined from star imports: init_db
+app\main.py:59:9: F405 'seed_employee_user' may be undefined, or defined from star imports: init_db
+app\main.py:60:9: F405 'seed_metric_definitions' may be undefined, or defined from star imports: init_db
+app\main.py:61:9: F405 'seed_metric_definition_roles' may be undefined, or defined from star imports: init_db
+app\main.py:64:1: W293 blank line contains whitespace
+app\main.py:65:1: E302 expected 2 blank lines, found 1
+app\main.py:71:68: W292 no newline at end of file
+app\models\base.py:15:1: E302 expected 2 blank lines, found 0
+app\models\base.py:17:1: W293 blank line contains whitespace
+app\models\base.py:23:1: E302 expected 2 blank lines, found 1
+app\models\base.py:28:19: W292 no newline at end of file
+app\models\models.py:1:1: F401 'sqlalchemy.Date' imported but unused
+app\models\models.py:8:1: E302 expected 2 blank lines, found 1
+app\models\models.py:20:1: W293 blank line contains whitespace
+app\models\models.py:21:1: E305 expected 2 blank lines after class or function definition, found 1
+app\models\models.py:27:1: W293 blank line contains whitespace
+app\models\models.py:32:1: W293 blank line contains whitespace
+app\models\models.py:38:1: E402 module level import not at top of file
+app\models\models.py:55:1: E302 expected 2 blank lines, found 0
+app\models\models.py:72:1: W293 blank line contains whitespace
+app\models\models.py:74:1: W293 blank line contains whitespace
+app\models\models.py:75:1: E303 too many blank lines (3)
+app\models\models.py:77:1: W293 blank line contains whitespace
+app\models\models.py:80:1: W293 blank line contains whitespace
+app\models\models.py:87:1: W293 blank line contains whitespace
+app\models\models.py:90:1: W293 blank line contains whitespace
+app\models\models.py:93:101: E501 line too long (102 > 100 characters)
+app\models\models.py:95:1: W293 blank line contains whitespace
+app\models\models.py:97:1: W293 blank line contains whitespace
+app\models\models.py:98:5: E265 block comment should start with '# '
+app\models\models.py:102:5: E303 too many blank lines (2)
+app\models\models.py:105:5: E265 block comment should start with '# '
+app\models\models.py:108:5: E265 block comment should start with '# '
+app\models\models.py:109:5: E265 block comment should start with '# '
+app\models\models.py:110:5: E265 block comment should start with '# '
+app\models\models.py:111:1: W293 blank line contains whitespace
+app\models\models.py:115:1: W293 blank line contains whitespace
+app\models\models.py:120:1: W293 blank line contains whitespace
+app\models\models.py:124:1: W293 blank line contains whitespace
+app\models\models.py:125:1: E302 expected 2 blank lines, found 1
+app\models\models.py:139:1: W293 blank line contains whitespace
+app\models\models.py:143:101: E501 line too long (118 > 100 characters)
+app\models\models.py:145:1: E302 expected 2 blank lines, found 1
+app\models\models.py:151:1: W293 blank line contains whitespace
+app\models\models.py:156:5: E265 block comment should start with '# '
+app\models\models.py:164:1: W293 blank line contains whitespace
+app\models\models.py:165:1: E305 expected 2 blank lines after class or function definition, found 1
+app\models\models.py:173:1: E302 expected 2 blank lines, found 0
+app\models\models.py:175:1: W293 blank line contains whitespace
+app\models\models.py:179:1: W293 blank line contains whitespace
+app\models\models.py:182:101: E501 line too long (107 > 100 characters)
+app\models\models.py:186:1: E305 expected 2 blank lines after class or function definition, found 1
+app\models\models.py:195:1: E302 expected 2 blank lines, found 0
+app\models\models.py:197:1: W293 blank line contains whitespace
+app\models\models.py:200:1: W293 blank line contains whitespace
+app\models\models.py:205:101: E501 line too long (104 > 100 characters)
+app\models\models.py:206:69: W292 no newline at end of file
+app\routes\auth.py:4:101: E501 line too long (129 > 100 characters)
+app\routes\auth.py:7:1: F401 'datetime.datetime' imported but unused
+app\routes\auth.py:7:1: F401 'datetime.timedelta' imported but unused
+app\routes\auth.py:8:1: F401 'jose.jwt' imported but unused
+app\routes\auth.py:10:1: E265 block comment should start with '# '
+app\routes\auth.py:21:1: E302 expected 2 blank lines, found 1
+app\routes\auth.py:38:1: W391 blank line at end of file
+app\routes\dashboards.py:3:1: F401 'pydantic.BaseModel' imported but unused
+app\routes\dashboards.py:5:1: F401 'app.models.models.MetricTypeEnum' imported but unused
+app\routes\dashboards.py:6:1: F401 'app.models.models.MetricDefinitionRole' imported but unused
+app\routes\dashboards.py:6:1: F401 'app.models.models.EmployeeRole' imported but unused
+app\routes\dashboards.py:8:1: F811 redefinition of unused 'get_db' from line 4
+app\routes\dashboards.py:9:1: F401 'datetime.date' imported but unused
+app\routes\dashboards.py:14:1: E302 expected 2 blank lines, found 1
+app\routes\departments.py:13:1: F811 redefinition of unused 'DepartmentType' from line 7
+app\routes\departments.py:13:1: E302 expected 2 blank lines, found 1
+app\routes\departments.py:14:9: E221 multiple spaces before operator
+app\routes\departments.py:15:15: E221 multiple spaces before operator
+app\routes\departments.py:17:19: E221 multiple spaces before operator
+app\routes\departments.py:21:1: E302 expected 2 blank lines, found 1
+app\routes\departments.py:25:1: W293 blank line contains whitespace
+app\routes\departments.py:27:1: E302 expected 2 blank lines, found 1
+app\routes\departments.py:35:1: W293 blank line contains whitespace
+app\routes\departments.py:36:1: E302 expected 2 blank lines, found 1
+app\routes\departments.py:40:1: E302 expected 2 blank lines, found 1
+app\routes\departments.py:44:5: E125 continuation line with same indent as next logical line
+app\routes\departments.py:60:101: E501 line too long (119 > 100 characters)
+app\routes\departments.py:63:1: E302 expected 2 blank lines, found 1
+app\routes\metric_records.py:11:1: F401 'app.models.models.EmployeeRole' imported but unused
+app\routes\metric_records.py:13:1: F401 'collections.defaultdict' imported but unused
+app\routes\metric_records.py:19:1: E303 too many blank lines (3)
+app\routes\metric_records.py:27:1: E302 expected 2 blank lines, found 1
+app\routes\metric_records.py:32:1: W293 blank line contains whitespace
+app\routes\metric_records.py:33:1: E302 expected 2 blank lines, found 1
+app\routes\metric_records.py:39:1: E302 expected 2 blank lines, found 1
+app\routes\metric_records.py:42:1: W293 blank line contains whitespace
+app\routes\metric_records.py:50:101: E501 line too long (115 > 100 characters)
+app\routes\metric_records.py:53:1: W293 blank line contains whitespace
+app\routes\metric_records.py:54:1: E302 expected 2 blank lines, found 1
+app\routes\metric_records.py:60:1: E302 expected 2 blank lines, found 1
+app\routes\metric_records.py:62:1: W293 blank line contains whitespace
+app\routes\metric_records.py:63:1: E302 expected 2 blank lines, found 1
+app\routes\metric_records.py:71:1: W293 blank line contains whitespace
+app\routes\metric_records.py:72:1: E302 expected 2 blank lines, found 1
+app\routes\metric_records.py:81:1: W293 blank line contains whitespace
+app\routes\metric_records.py:82:1: E302 expected 2 blank lines, found 1
+app\routes\metric_records.py:92:1: W293 blank line contains whitespace
+app\routes\metric_records.py:93:1: E302 expected 2 blank lines, found 1
+app\routes\metric_records.py:105:1: E302 expected 2 blank lines, found 1
+app\routes\metric_records.py:122:101: E501 line too long (109 > 100 characters)
+app\routes\metric_records.py:143:1: E302 expected 2 blank lines, found 1
+app\routes\metric_records.py:166:1: E302 expected 2 blank lines, found 1
+app\routes\metric_records.py:173:101: E501 line too long (109 > 100 characters)
+app\routes\metric_records.py:184:101: E501 line too long (109 > 100 characters)
+app\routes\metric_records.py:193:5: E125 continuation line with same indent as next logical line
+app\routes\metric_records.py:195:101: E501 line too long (111 > 100 characters)
+app\routes\metric_records.py:198:1: W293 blank line contains whitespace
+app\routes\metric_records.py:199:5: F841 local variable 'employee_department' is assigned to but never used
+app\routes\metric_records.py:227:9: E303 too many blank lines (2)
+app\routes\metric_records.py:245:5: E125 continuation line with same indent as next logical line
+app\routes\metric_records.py:250:63: W291 trailing whitespace
+app\routes\metric_records.py:256:101: E501 line too long (130 > 100 characters)
+app\routes\metric_records.py:308:5: E125 continuation line with same indent as next logical line
+app\routes\metric_records.py:315:101: E501 line too long (107 > 100 characters)
+app\routes\metric_records.py:323:1: E302 expected 2 blank lines, found 1
+app\routes\metric_records.py:328:5: E125 continuation line with same indent as next logical line
+app\routes\metric_records.py:338:101: E501 line too long (102 > 100 characters)
+app\routes\metric_records.py:369:1: W293 blank line contains whitespace
+app\routes\metric_records.py:370:80: W291 trailing whitespace
+app\routes\metric_records.py:371:1: E302 expected 2 blank lines, found 1
+app\routes\metric_records.py:380:5: E125 continuation line with same indent as next logical line
+app\routes\metric_records.py:428:5: F811 redefinition of unused 'defaultdict' from line 13
+app\routes\metric_records.py:437:46: W291 trailing whitespace
+app\routes\metric_records.py:456:1: E303 too many blank lines (3)
+app\routes\metric_records.py:459:4: W292 no newline at end of file
+app\routes\metrics.py:7:1: F401 'pydantic.EmailStr' imported but unused
+app\routes\metrics.py:11:1: F811 redefinition of unused 'datetime' from line 8
+app\routes\metrics.py:11:1: F401 'datetime.datetime' imported but unused
+app\routes\metrics.py:11:1: F401 'datetime.timezone' imported but unused
+app\routes\metrics.py:15:1: F401 'sqlalchemy.String' imported but unused
+app\routes\metrics.py:15:1: F401 'sqlalchemy.or_' imported but unused
+app\routes\metrics.py:30:1: W293 blank line contains whitespace
+app\routes\metrics.py:31:1: E302 expected 2 blank lines, found 1
+app\routes\metrics.py:46:1: W293 blank line contains whitespace
+app\routes\metrics.py:48:1: W293 blank line contains whitespace
+app\routes\metrics.py:49:1: E303 too many blank lines (3)
+app\routes\metrics.py:54:30: W291 trailing whitespace
+app\routes\metrics.py:55:1: E302 expected 2 blank lines, found 3
+app\routes\metrics.py:56:101: E501 line too long (106 > 100 characters)
+app\routes\metrics.py:57:5: E128 continuation line under-indented for visual indent
+app\routes\metrics.py:57:5: E125 continuation line with same indent as next logical line
+app\routes\metrics.py:64:9: E265 block comment should start with '# '
+app\routes\metrics.py:67:1: W293 blank line contains whitespace
+app\routes\metrics.py:71:1: W293 blank line contains whitespace
+app\routes\metrics.py:73:1: E302 expected 2 blank lines, found 1
+app\routes\metrics.py:74:101: E501 line too long (103 > 100 characters)
+app\routes\metrics.py:75:5: E128 continuation line under-indented for visual indent
+app\routes\metrics.py:75:5: E125 continuation line with same indent as next logical line
+app\routes\metrics.py:82:9: E265 block comment should start with '# '
+app\routes\metrics.py:85:1: W293 blank line contains whitespace
+app\routes\metrics.py:106:1: E302 expected 2 blank lines, found 1
+app\routes\metrics.py:121:1: E302 expected 2 blank lines, found 1
+app\routes\metrics.py:123:101: E501 line too long (108 > 100 characters)
+app\routes\metrics.py:133:101: E501 line too long (119 > 100 characters)
+app\routes\metrics.py:146:26: W291 trailing whitespace
+app\routes\metrics.py:155:1: W293 blank line contains whitespace
+app\routes\metrics.py:158:1: W293 blank line contains whitespace
+app\routes\metrics.py:161:1: W293 blank line contains whitespace
+app\routes\metrics.py:164:1: W293 blank line contains whitespace
+app\routes\metrics.py:167:1: W293 blank line contains whitespace
+app\routes\metrics.py:170:1: W293 blank line contains whitespace
+app\routes\metrics.py:173:1: W293 blank line contains whitespace
+app\routes\metrics.py:187:1: W293 blank line contains whitespace
+app\routes\metrics.py:190:1: E302 expected 2 blank lines, found 1
+app\routes\metrics.py:192:101: E501 line too long (108 > 100 characters)
+app\routes\metrics.py:202:101: E501 line too long (119 > 100 characters)
+app\routes\metrics.py:213:1: W293 blank line contains whitespace
+app\routes\metrics.py:242:26: W291 trailing whitespace
+app\routes\metrics.py:254:1: W293 blank line contains whitespace
+app\routes\metrics.py:257:1: W293 blank line contains whitespace
+app\routes\metrics.py:260:1: W293 blank line contains whitespace
+app\routes\metrics.py:263:1: W293 blank line contains whitespace
+app\routes\metrics.py:266:1: W293 blank line contains whitespace
+app\routes\metrics.py:276:1: W293 blank line contains whitespace
+app\routes\metrics.py:279:1: W293 blank line contains whitespace
+app\routes\metrics.py:295:1: W293 blank line contains whitespace
+app\routes\metrics.py:298:1: E302 expected 2 blank lines, found 1
+app\routes\metrics.py:301:101: E501 line too long (108 > 100 characters)
+app\routes\metrics.py:307:101: E501 line too long (119 > 100 characters)
+app\routes\metrics.py:319:26: W291 trailing whitespace
+app\routes\metrics.py:328:1: W293 blank line contains whitespace
+app\routes\metrics.py:330:1: W293 blank line contains whitespace
+app\routes\metrics.py:343:1: W293 blank line contains whitespace
+app\routes\metrics.py:345:1: W293 blank line contains whitespace
+app\routes\metrics.py:345:5: W292 no newline at end of file
+app\routes\profile.py:4:1: F401 'app.models.models.RoleType' imported but unused
+app\routes\profile.py:8:1: F811 redefinition of unused 'User' from line 4
+app\routes\profile.py:13:1: E265 block comment should start with '# '
+app\routes\profile.py:14:1: E302 expected 2 blank lines, found 0
+app\routes\profile.py:27:1: E302 expected 2 blank lines, found 1
+app\routes\profile.py:37:16: W292 no newline at end of file
+app\routes\users.py:7:1: F401 'app.models.models.DepartmentType' imported but unused
+app\routes\users.py:10:1: F401 'app.auth.deps.get_current_user_role' imported but unused
+app\routes\users.py:19:1: E302 expected 2 blank lines, found 1
+app\routes\users.py:25:34: W291 trailing whitespace
+app\routes\users.py:28:1: W293 blank line contains whitespace
+app\routes\users.py:29:1: E302 expected 2 blank lines, found 1
+app\routes\users.py:41:1: E302 expected 2 blank lines, found 1
+app\routes\users.py:44:34: W291 trailing whitespace
+app\routes\users.py:46:1: E302 expected 2 blank lines, found 1
+app\routes\users.py:62:1: E302 expected 2 blank lines, found 1
+app\routes\users.py:70:34: W291 trailing whitespace
+app\routes\users.py:72:1: W293 blank line contains whitespace
+app\routes\users.py:73:1: E302 expected 2 blank lines, found 1
+app\routes\users.py:81:34: W291 trailing whitespace
+app\routes\users.py:86:1: E302 expected 2 blank lines, found 1
+app\routes\users.py:88:101: E501 line too long (114 > 100 characters)
+app\routes\users.py:96:1: E302 expected 2 blank lines, found 1
+app\routes\users.py:105:1: E302 expected 2 blank lines, found 1
+app\routes\users.py:111:1: E302 expected 2 blank lines, found 1
+app\routes\users.py:125:1: E302 expected 2 blank lines, found 1
+app\routes\users.py:136:1: W293 blank line contains whitespace
+app\routes\users.py:156:1: E302 expected 2 blank lines, found 1
+app\routes\users.py:166:1: W293 blank line contains whitespace
+app\routes\users.py:170:1: E302 expected 2 blank lines, found 1
+app\routes\users.py:178:1: W293 blank line contains whitespace
+app\routes\users.py:198:101: E501 line too long (116 > 100 characters)
+app\routes\users.py:200:1: E302 expected 2 blank lines, found 1
+app\routes\users.py:236:1: E302 expected 2 blank lines, found 1
+app\routes\users.py:259:1: E302 expected 2 blank lines, found 1
+app\routes\users.py:267:1: W293 blank line contains whitespace
+app\routes\users.py:270:101: E501 line too long (114 > 100 characters)
+app\routes\users.py:271:1: W293 blank line contains whitespace
+app\routes\users.py:273:1: W293 blank line contains whitespace
+app\routes\users.py:288:1: W293 blank line contains whitespace
+app\routes\users.py:293:101: E501 line too long (113 > 100 characters)
+app\routes\users.py:295:1: E302 expected 2 blank lines, found 1
+app\routes\users.py:310:101: E501 line too long (117 > 100 characters)
+app\routes\users.py:332:1: E302 expected 2 blank lines, found 1
+app\routes\users.py:348:1: W293 blank line contains whitespace
+app\routes\users.py:351:101: E501 line too long (119 > 100 characters)
+app\routes\users.py:359:1: E302 expected 2 blank lines, found 1
+app\routes\users.py:372:101: E501 line too long (118 > 100 characters)
+app\routes\users.py:399:20: W292 no newline at end of file
+app\services\auth_service.py:5:101: E501 line too long (102 > 100 characters)
+app\services\auth_service.py:9:101: E501 line too long (102 > 100 characters)
+app\services\auth_service.py:13:1: E302 expected 2 blank lines, found 1
+app\services\auth_service.py:19:14: E271 multiple spaces after keyword
+app\services\auth_service.py:19:14: E211 whitespace before '('
+app\services\auth_service.py:22:16: W292 no newline at end of file
+app\utils\security.py:16:1: E302 expected 2 blank lines, found 0
+app\utils\security.py:28:1: E302 expected 2 blank lines, found 0
+app\utils\security.py:35:1: F811 redefinition of unused 'verify_password' from line 16
+app\utils\security.py:35:1: E302 expected 2 blank lines, found 1
+app\utils\security.py:38:1: F811 redefinition of unused 'get_password_hash' from line 11
+app\utils\security.py:38:1: E302 expected 2 blank lines, found 1
